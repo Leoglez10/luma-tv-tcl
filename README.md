@@ -29,6 +29,7 @@ ANDROID_HOME=~/Library/Android/sdk ./gradlew assembleDebug
 # APK: launcher/app/build/outputs/apk/debug/app-debug.apk
 ```
 
+- The JDK is selected by `launcher/gradle/gradle-daemon-jvm.properties` (`toolchainVersion=21`, Gradle 8.8+): Gradle runs its daemon on any installed JDK 21, so no absolute path is committed. If Gradle reports that no JDK 21 is found, install one (`brew install --cask corretto@21`, or any JDK 21 into `~/.gradle/jdks`) or run with `JAVA_HOME=$(/usr/libexec/java_home -v 21)`.
 - Plain `android.app.Activity` in Java, no AndroidX: the debug APK is ~52 KB. A launcher stays in memory permanently, so every dependency costs RAM.
 - `minSdk 31` (the TV runs Android 12), `targetSdk 34`, `compileSdk 36`.
 - `launcher/local.properties` (SDK path) and `launcher/tmdb.properties` (TMDB credentials) are gitignored and must be created locally. Never commit the TMDB key.
@@ -54,6 +55,19 @@ Unit tests: `./gradlew :app:testDebugUnitTest`.
 - Works fully offline; no network code yet.
 - Greeting logic tested first (RED → GREEN), including hour boundaries.
 - Known caveat: AGP 8.7.2 is not tested against compileSdk 36; the warning is suppressed in `gradle.properties`.
+
+### 2026-10-25 — Review fixes
+
+Fixes for the native review of the Home UI v1 commit (`417d5cb`):
+
+- Added fixed "Entradas" (`com.android.tv.action.VIEW_INPUTS`) and "Ajustes" (`android.settings.SETTINGS`) tiles at the end of the row, shown only when the device resolves them — WHY: HDMI inputs and Settings were unreachable once the stock launcher is replaced (spec S4).
+- Added a `<queries>` block to the manifest — WHY: with `targetSdk 34` package visibility hides apps and system activities from `resolveActivity` unless declared.
+- Back no longer finishes the HOME activity — WHY: a launcher that exits on Back leaves the user without a home screen.
+- App row is rebuilt in `onResume` (focus kept on the same tile when it still exists) — WHY: the row was only built in `onCreate`, so installs and uninstalls were never reflected.
+- Clock ticks start in `onResume` and stop in `onPause` — WHY: avoids ticking while the home is in the background and keeps the time correct on return.
+- Launch failures show a "No se pudo abrir <app>" toast and catch `ActivityNotFoundException`/`SecurityException` — WHY: a dead tile used to fail silently.
+- Removed machine-specific `org.gradle.java.home` and added `gradle/gradle-daemon-jvm.properties` with `toolchainVersion=21` — WHY: the committed absolute path only worked on one machine, and the system JDK 26 is not accepted by this Gradle/AGP combination.
+- Extracted app filtering/sorting into the Android-free `AppCatalog` and covered it with `AppCatalogTest` (written first, RED → GREEN: excludes own package and disabled apps, case-insensitive sort, de-duplication, empty input) — WHY: this logic had no tests and decides what the user can open.
 
 ## Device access
 
