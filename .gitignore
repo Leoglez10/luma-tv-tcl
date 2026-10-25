@@ -5,3 +5,6 @@ build/
 local.properties
 *.apk
 launcher/tmdb.properties
+# Local test output and TV screenshots can contain private network details.
+launcher/build-check.log
+docs/design/installed-*.png
