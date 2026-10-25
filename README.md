@@ -7,13 +7,20 @@ Custom lightweight home screen for a TCL Google TV (`G10_4K_GB_NF`, Android 12),
 - [x] Debloat and optimization notes — see [`docs/tv-optimization-notes.md`](docs/tv-optimization-notes.md)
 - [x] Device analysis (2026-10) — see [Work log](#work-log)
 - [x] Launcher scaffold + Home UI v1 (clock, greeting, app row)
-- [x] TMDB poster rows (trending, popular movies, popular series; hidden without key or network)
+- [x] Reference-based light home with content tabs, hero/posters and an app banner dock
 - [ ] Install, set as HOME, rollback script
 - [ ] RAM before/after measurement
 
 ## Design
 
-Apple TV-style home: near-black background, large clock and greeting, one row of large app tiles, and (next) rows of trending posters from TMDB.
+A light, reference-based home inspired by the composition in [the user's image](docs/design/reference-home.png), not an exact Apple TV reproduction:
+- **Header:** “Para ti”, focusable Explorar/Películas/Series tabs, round Wi-Fi/Entradas/Ajustes controls and a small clock.
+- **Content:** one wide backdrop hero followed by portrait posters, title captions and the hero's media type, first known genre and year. Tabs select TMDB trending, popular movies and popular TV respectively.
+- **Dock:** a rounded translucent panel of wide installed-app banners, with icon and label fallback. A soft gradient suggests frosted glass without a live blur or extra dependencies.
+
+Initial focus is the first dock app. Left/right stays in each row (header tabs lead to system controls); Up goes dock → first content card → selected tab, and Down returns content → first dock app. Without content, the dock links directly to tabs. Dark focus outlines remain inside padded card margins; cards do not scale into neighboring content. System controls appear only when resolvable.
+
+Without credentials or usable cached/network content, the content area stays empty while tabs, clock, dock and system controls remain usable. Cached TMDB content can remain visible offline. No greeting or oversized clock is shown.
 
 **Why a custom launcher:** the stock Google TV launcher (`launcherx` + `coreservices`) uses ~252 MB on a TV with 1.8 GB of RAM, which pushes the system into swap. It also shows ads and recommendations. Replacing it frees an estimated 200–300 MB together with the assistant.
 
@@ -30,7 +37,7 @@ ANDROID_HOME=~/Library/Android/sdk ./gradlew assembleDebug
 ```
 
 - The JDK is selected by `launcher/gradle/gradle-daemon-jvm.properties` (`toolchainVersion=21`, Gradle 8.8+): Gradle runs its daemon on any installed JDK 21, so no absolute path is committed. If Gradle reports that no JDK 21 is found, install one (`brew install --cask corretto@21`, or any JDK 21 into `~/.gradle/jdks`) or run with `JAVA_HOME=$(/usr/libexec/java_home -v 21)`.
-- Plain `android.app.Activity` in Java, no AndroidX: the debug APK is ~84 KB with the TMDB rows. A launcher stays in memory permanently, so every dependency costs RAM.
+- Plain `android.app.Activity` in Java, no AndroidX or runtime dependencies. A launcher stays in memory permanently, so every dependency costs RAM.
 - `minSdk 31` (the TV runs Android 12), `targetSdk 34`, `compileSdk 36`.
 - `launcher/local.properties` (SDK path) and `launcher/tmdb.properties` (TMDB credentials) are gitignored and must be created locally. Never commit the TMDB key.
 - TMDB credentials: create `launcher/tmdb.properties` with two keys (get them from your free TMDB account, Settings > API):
@@ -87,6 +94,16 @@ Fixes for the native review of the Home UI v1 commit (`417d5cb`):
 - JSON is cached in `getCacheDir()` and rows are refreshed at most every 6 hours (not on every resume), with a 5-minute retry gap when offline — WHY: avoids hammering TMDB and shows rows instantly on start.
 - No credentials, no network, HTTP error or timeout (8 s) hides the affected row silently; clock, greeting and app row are untouched — WHY: spec S3.
 - Parsing, URL building, credentials decision, refresh policy and image sampling are pure Java and were written test-first (RED → GREEN).
+
+### 2026-10-25 — Reference-based home redesign (T3c)
+
+- Replaced the dark greeting/clock layout with the reference's light header/content/dock composition — WHY: the user's “estilo apple tv” clarification and supplied image supersede the earlier interpretation.
+- Connected the existing HomeTab, parser and metadata work to one visible content row per tab. The first card uses a backdrop (poster fallback), and only real available metadata is shown — WHY: match the reference without inventing providers or season counts.
+- Moved system actions to accessible round header buttons, added Wi-Fi settings, and used activity/application banners with icon fallback in the app dock — WHY: keep the reference's shape while retaining access to installed apps, Settings and HDMI inputs.
+- Kept app filtering, refresh/cache policies, launch-error Toasts, lifecycle-bound minute ticks and Back as a no-op. Explicit focus links and padded outlines replace card scaling — WHY: predictable remote navigation without clipped highlights.
+- Preserved the previous worker's pure-Java tests/classes; no new runtime dependency. JVM tests cover data behavior; appearance, D-pad scrolling, system intent resolution and app launch checks still require the TV. Content selection still shows only a title Toast, not playback.
+- Validation: 29 focused JVM tests passed; the full 53-test suite and debug assembly passed both without `tmdb.properties` and after restoring it (checksum equality verified). The final local APK includes the restored credentials; do not publish it.
+- Device installation, HOME recovery scripts and RAM measurements are outside this visual unit.
 
 ## Device access
 
