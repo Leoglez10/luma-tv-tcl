@@ -103,22 +103,71 @@ Fixes for the native review of the Home UI v1 commit (`417d5cb`):
 - Kept app filtering, refresh/cache policies, launch-error Toasts, lifecycle-bound minute ticks and Back as a no-op. Explicit focus links and padded outlines replace card scaling — WHY: predictable remote navigation without clipped highlights.
 - Preserved the previous worker's pure-Java tests/classes; no new runtime dependency. JVM tests cover data behavior; appearance, D-pad scrolling, system intent resolution and app launch checks still require the TV. Content selection still shows only a title Toast, not playback.
 - Validation: 29 focused JVM tests passed; the full 53-test suite and debug assembly passed both without `tmdb.properties` and after restoring it (checksum equality verified). The final local APK includes the restored credentials; do not publish it.
-- Parent verification: `:app:testDebugUnitTest assembleDebug --no-daemon` succeeded; APK installed successfully on the TV at its updated address. The light composition and the Series tab were observed on screen; full reboot, app/system-control coverage and RAM measurement remain pending.
+- Parent verification: `:app:testDebugUnitTest assembleDebug --no-daemon` succeeded; APK installed successfully on the TV. The light composition and the Series tab were observed. A later reboot completed with the custom HOME automatically resumed. Red, Entradas and Ajustes opened their system screens, Apple TV opened from the dock, and Back kept HOME active. This does not prove playback, DRM or session continuity in every streaming app.
 - Native review could not start for commit `2bdb901`: `native-start-retained-selection-candidate-mismatch`, with no mutation or review lineage created. The user explicitly authorized publishing this candidate without native review; no review approval is claimed. Functional checks passed independently.
 - HOME recovery scripts and RAM measurements remain a separate work unit.
 
-## Device access
+## Install and device access
+
+Confirm the address on the TV first. Its address changed from `.24` to `.13` and then `.12` during this work; no stable IP is assumed. Current verified address: `192.168.x.x:5555`.
 
 ```bash
-adb connect <tv-ip>:5555
+adb connect 192.168.x.x:5555
+TV=192.168.x.x:5555 bash scripts/install-launcher.sh --help
+TV=192.168.x.x:5555 bash scripts/install-launcher.sh
 ```
+
+`TV=host:port` is required. The APK defaults to `launcher/app/build/outputs/apk/debug/app-debug.apk`, resolved from the repository, not your current directory; `APK` can override it. Installation uses `adb install -r` without clearing data. The default verifies custom HOME without disabling packages. On this TCL, the system-priority Google HOME can override that preference; the default then fails rather than pretending the switch worked.
+
+To switch this TCL fully after the custom activity starts:
+
+```bash
+TV=192.168.x.x:5555 bash scripts/install-launcher.sh --disable-google-launcher
+```
+
+This disables **both** `launcherx` and `setupwraith`: disabling only `launcherx` made `setupwraith/.RecoveryActivity` take HOME and loop. A failed switch attempts Google HOME recovery; loss of network/ADB means recovery cannot be guaranteed. Read stderr and restore connectivity before proceeding.
+
+The optional `--disable-assistant` also disables `katniss`, removing voice search/mic support. **It was not used on this TV**. GMS, Play Store, HDMI services and `dreamx` are not disabled by these scripts.
 
 ## Recovery
 
-If the custom launcher fails and the TV has no home screen:
+Use the current TV address; do not factory-reset the TV as a launcher recovery step.
 
 ```bash
-adb shell pm enable com.google.android.apps.tv.launcherx
+TV=192.168.x.x:5555 bash scripts/rollback-launcher.sh
 ```
 
-The full install and rollback script will be added with the install step.
+Rollback re-enables `launcherx`, `setupwraith` and the assistant, selects Google HOME and verifies that it is resumed. By default it keeps the custom launcher and its data. `--uninstall` additionally removes **only** the custom launcher **after** Google HOME is verified; it deletes that app's data and should be used only when intended. Android-reported errors are checked even when ADB exits zero.
+
+If the script is unavailable, the manual recovery sequence is:
+
+```bash
+adb connect <tv-ip>:5555
+adb -s <tv-ip>:5555 shell pm enable com.google.android.apps.tv.launcherx
+adb -s <tv-ip>:5555 shell pm enable com.google.android.tungsten.setupwraith
+adb -s <tv-ip>:5555 shell cmd package set-home-activity com.google.android.apps.tv.launcherx/.home.HomeActivity
+adb -s <tv-ip>:5555 shell input keyevent KEYCODE_HOME
+```
+
+The final hardened rollback script has not been executed on the physical TV. Local mock-ADB checks cover recovery branches; they do not prove recovery while a TV is unreachable.
+
+## Device verification and memory
+
+The TV completed a reboot and automatically resumed `ar.gentleman.tvlauncher/.MainActivity`. Red, Entradas, Ajustes, a dock app and Back were exercised. `dreamx` remains configured and enabled; a full screensaver cycle, physical HDMI playback and all streaming DRM/sessions were not tested. Existing CEC and remote-power hardware investigations are unchanged.
+
+| Metric (kB) | Before, active session | After reboot |
+|---|---:|---:|
+| MemAvailable | 558304 | 782488 |
+| Swap used | 496168 | 338432 |
+
+The custom launcher measured PSS 39031 kB plus swap PSS 29977 kB. These snapshots **do not isolate launcher savings**: the reboot and loaded apps are confounders. No 70% RAM reduction is claimed. Raw evidence and limitations are in [the optimization notes](docs/tv-optimization-notes.md#8-launcher-propio--octubre-de-2026).
+
+### Recovery script checks
+
+```bash
+bash -n scripts/install-launcher.sh scripts/rollback-launcher.sh scripts/test-launcher-scripts.sh
+shellcheck scripts/*.sh
+bash scripts/test-launcher-scripts.sh
+```
+
+Parent and independent verifier each observed syntax and ShellCheck passing and 47 mock-ADB assertions passing. Independent verdict: local PASS, no severe script blockers, physical recovery partial. The script writer failed before delivering complete RED evidence, so no verified T5 RED→GREEN history is claimed. Real rollback, recovery within one minute and recovery while unreachable are not proven; ADB calls have no explicit timeout. The optional assistant-disable path lacks a dedicated dynamic scenario and was not used on this TV.
