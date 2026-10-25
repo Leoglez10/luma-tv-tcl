@@ -13,10 +13,11 @@ Custom lightweight home screen for a TCL Google TV (`G10_4K_GB_NF`, Android 12),
 
 ## Design
 
-A light, reference-based home inspired by the composition in [the user's image](docs/design/reference-home.png), not an exact Apple TV reproduction:
+A soft-dark home inspired by the composition in [the user's image](docs/design/reference-home.png), not an exact Apple TV reproduction. The palette was later darkened to charcoal ("más oscuro, no completamente oscuro") while keeping the same layout:
 - **Header:** “Para ti”, focusable Explorar/Películas/Series tabs, round Wi-Fi/Entradas/Ajustes controls and a small clock.
 - **Content:** one wide backdrop hero followed by portrait posters, title captions and the hero's media type, first known genre and year. Tabs select TMDB trending, popular movies and popular TV respectively.
 - **Dock:** a rounded translucent panel of wide installed-app banners, with icon and label fallback. A soft gradient suggests frosted glass without a live blur or extra dependencies.
+- **App focus:** each dock tile reserves its full slot and rests slightly reduced (0.90), growing smoothly to its natural size (1.00) on focus with cancel-and-restart easing over 240 ms. The dock clips to its rounded outline, so a highlight can never escape the container or overlap a neighbor.
 
 Initial focus is the first dock app. Left/right stays in each row (header tabs lead to system controls); Up goes dock → first content card → selected tab, and Down returns content → first dock app. Without content, the dock links directly to tabs. Dark focus outlines remain inside padded card margins; cards do not scale into neighboring content. System controls appear only when resolvable.
 
@@ -161,6 +162,13 @@ The TV completed a reboot and automatically resumed `ar.gentleman.tvlauncher/.Ma
 | Swap used | 496168 | 338432 |
 
 The custom launcher measured PSS 39031 kB plus swap PSS 29977 kB. These snapshots **do not isolate launcher savings**: the reboot and loaded apps are confounders. No 70% RAM reduction is claimed. Raw evidence and limitations are in [the optimization notes](docs/tv-optimization-notes.md#8-launcher-propio--octubre-de-2026).
+
+### 2026-10-25 — Soft dark palette and contained app focus
+
+- Replaced the light surfaces with a charcoal palette and switched the activity to `Theme.Material.NoActionBar.Fullscreen` — WHY: the user found the light design unpleasant and asked for darker, but not fully black.
+- App tiles now grow within a reserved slot instead of scaling arbitrarily, with `clipToOutline` on the dock — WHY: focus animations must feel smooth and never leave the container.
+- Validated structurally (resource XML parses, dock clip flags, maximum scale equals the reserved slot) plus the JVM suite and debug assembly. **Device verification is pending by explicit user request** because the TV was in use; no on-screen confirmation of the new palette or motion is claimed yet.
+- Recorded backlog from the user: reorder dock apps, profiles as before, and cards with where-to-watch information. None are implemented.
 
 ### Recovery script checks
 
