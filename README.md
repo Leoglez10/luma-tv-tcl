@@ -103,7 +103,9 @@ Fixes for the native review of the Home UI v1 commit (`417d5cb`):
 - Kept app filtering, refresh/cache policies, launch-error Toasts, lifecycle-bound minute ticks and Back as a no-op. Explicit focus links and padded outlines replace card scaling — WHY: predictable remote navigation without clipped highlights.
 - Preserved the previous worker's pure-Java tests/classes; no new runtime dependency. JVM tests cover data behavior; appearance, D-pad scrolling, system intent resolution and app launch checks still require the TV. Content selection still shows only a title Toast, not playback.
 - Validation: 29 focused JVM tests passed; the full 53-test suite and debug assembly passed both without `tmdb.properties` and after restoring it (checksum equality verified). The final local APK includes the restored credentials; do not publish it.
-- Device installation, HOME recovery scripts and RAM measurements are outside this visual unit.
+- Parent verification: `:app:testDebugUnitTest assembleDebug --no-daemon` succeeded; APK installed successfully on the TV at its updated address. The light composition and the Series tab were observed on screen; full reboot, app/system-control coverage and RAM measurement remain pending.
+- Native review could not start for commit `2bdb901`: `native-start-retained-selection-candidate-mismatch`, with no mutation or review lineage created. The user explicitly authorized publishing this candidate without native review; no review approval is claimed. Functional checks passed independently.
+- HOME recovery scripts and RAM measurements remain a separate work unit.
 
 ## Device access
 
