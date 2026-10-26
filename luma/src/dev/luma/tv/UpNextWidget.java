@@ -159,7 +159,7 @@ final class UpNextWidget extends Widget {
                 title.animate().translationY(f?px(5):0).setDuration(300).setInterpolator(ease).start();line.animate().translationY(f?px(5):0).setDuration(300).setInterpolator(ease).start();}
             else{face.setScaleX(s);face.setScaleY(s);}
             face.setElevation(px(f?14:2));rim.setAlpha(f?220:0);cell.setTranslationZ(px(f?20:0));
-            if(f){host.hero("upnext:"+item.key,item.title,item.detail);host.step(slot);}
+            if(f){host.hero("upnext:"+item.key,item.title,item.detail);}
         });
         cell.setOnClickListener(v->{host.open();press(face,1.08f);open(item);});
         return cell;

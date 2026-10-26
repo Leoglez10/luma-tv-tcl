@@ -156,7 +156,6 @@ public final class MainActivity extends Activity {
     private int px(float value) { return Math.round(value * unit); }
     private boolean motion() { return prefs.getBoolean("motion", true) && ValueAnimator.areAnimatorsEnabled(); }
     private void sound() { if (prefs.getBoolean("sound", true)) sonic.open(); }
-    private void navigationSound(int index) { if(prefs.getBoolean("sound",true))sonic.step((index%6)/5f,lastDirectionX+lastDirectionY); }
     private TextView text(String value, float size, int color, String family) {
         TextView view = new TextView(this);
         view.setText(value); view.setTextColor(color);
@@ -341,7 +340,7 @@ public final class MainActivity extends Activity {
                 public void up(){tabs.get(0).requestFocus();}
                 public void down(float x){focusNearestTile(x);}
                 public void open(){try{startActivity(new Intent().setComponent(new ComponentName("dev.housecontrol.tv","dev.housecontrol.tv.MainActivity")));overridePendingTransition(0,0);}catch(Exception e){Toast.makeText(MainActivity.this,"Install House Control to connect your home.",Toast.LENGTH_SHORT).show();}}
-                public void focusHome(String title,String detail){holdGreeting=false;homeGreeting=false;setHero("@home:"+title,title,detail);navigationSound(2);}
+                public void focusHome(String title,String detail){holdGreeting=false;homeGreeting=false;setHero("@home:"+title,title,detail);}
                 public void activate(){sound();}
                 public boolean sceneApplied(String id){return MainActivity.this.sceneApplied(id);}
                 public boolean motion(){return MainActivity.this.motion();}
@@ -433,7 +432,7 @@ public final class MainActivity extends Activity {
         field.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         field.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         Runnable ring=()->{GradientDrawable bg=shape(0x1FFFFFFF,12);if(field.hasFocus())bg.setStroke(px(1.5f),Color.WHITE);field.setBackground(bg);};ring.run();
-        field.setOnFocusChangeListener((v,f)->{ring.run();if(f)navigationSound(0);});
+        field.setOnFocusChangeListener((v,f)->ring.run());
         panel.addView(field,pos(392,46,24,94));
         Runnable save=()->{prefs.edit().putString("name",field.getText().toString().trim()).apply();
             ((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(field.getWindowToken(),0);
@@ -460,7 +459,6 @@ public final class MainActivity extends Activity {
         public float unit(){return unit;}
         public boolean light(){return light;}
         public boolean motion(){return MainActivity.this.motion();}
-        public void step(int index){navigationSound(index);}
         public void open(){sound();}
         public void hero(String key,String title,String detail){holdGreeting=false;homeGreeting=false;setHero(key,title,detail);}
         public View up(){return tabs.get(0);}
@@ -596,7 +594,7 @@ public final class MainActivity extends Activity {
         if(checked)row.setCompoundDrawablePadding(px(8));
         Runnable paint=()->{boolean f=row.hasFocus();row.setBackground(f?shape(0xF7FFFFFF,12):null);row.setTextColor(f?0xFF111827:Color.WHITE);row.setText((checked?"✓  ":"")+label);};
         paint.run();
-        row.setOnFocusChangeListener((v,f)->{paint.run();row.animate().cancel();if(motion())row.animate().scaleX(f?1.02f:1).scaleY(f?1.02f:1).setDuration(240).setInterpolator(ease).start();if(f)navigationSound(list.indexOfChild(row));});
+        row.setOnFocusChangeListener((v,f)->{paint.run();row.animate().cancel();if(motion())row.animate().scaleX(f?1.02f:1).scaleY(f?1.02f:1).setDuration(240).setInterpolator(ease).start();});
         row.setOnClickListener(v->{sound();action.run();});
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,px(42));lp.bottomMargin=px(4);list.addView(row,lp);return row;
     }
@@ -644,7 +642,7 @@ public final class MainActivity extends Activity {
             cell.setOnFocusChangeListener((v,f)->{
                 GradientDrawable r=shape(Color.TRANSPARENT,12);r.setStroke(px(f?2:1.5f),f?Color.WHITE:index==saved?0xCCFFFFFF:0x33FFFFFF);cell.setForeground(r);cell.setElevation(px(f?18:2));
                 cell.animate().cancel();float s=f?1.16f:1;if(motion())cell.animate().scaleX(s).scaleY(s).translationY(f?-px(4):0).setDuration(420).setInterpolator(spring).start();else{cell.setScaleX(s);cell.setScaleY(s);}
-                if(f){name.setText(WALLPAPERS[index]);wallpaper.show(index);navigationSound(index);}
+                if(f){name.setText(WALLPAPERS[index]);wallpaper.show(index);}
             });
             cell.setOnClickListener(v->{sound();prefs.edit().putInt("wallpaper",index).apply();overlayCancel=null;closeOverlay(false);
                 content.animate().alpha(1).setDuration(260).start();nav().animate().alpha(1).setDuration(260).start();sceneryShade.animate().alpha(1).setDuration(260).start();showPage("settings",false);controlsFocus(0);});
@@ -811,7 +809,7 @@ public final class MainActivity extends Activity {
         caption(list,"Motion and sound",false);
         controls.add(option(list,"Fluid motion",null,"motion",()->{},()->preview(0,"Fluid motion","Springy focus, depth and the 3D flight into your TV. Turn off for a calmer, simpler screen.")));
         controls.add(option(list,"Living wallpaper",null,"ambient",()->wallpaper.syncAmbient(),()->preview(THUMBS[wallpaperStyle()],"Living wallpaper","Clouds drift and water moves very slowly. Pauses whenever an app is open.")));
-        controls.add(option(list,"Navigation sounds",null,"sound",()->{},()->preview(0,"Navigation sounds","Soft, quiet feedback as you move and open apps.")));
+        controls.add(option(list,"Navigation sounds",null,"sound",()->{},()->preview(0,"Navigation sounds","A soft, quiet sound when you open an app.")));
         caption(list,"Home",false);
         widgetsRow=controls.size();
         controls.add(option(list,"Home widgets",this::widgetSummary,null,this::widgetEditor,
@@ -910,7 +908,7 @@ public final class MainActivity extends Activity {
                 row.setAlpha(available(id)?1:.5f);
             };
             paints.put(id,paint);paint.run();
-            row.setOnFocusChangeListener((v,f)->{paint.run();lift(row,f);if(f)navigationSound(list.indexOfChild(row));});
+            row.setOnFocusChangeListener((v,f)->{paint.run();lift(row,f);});
             row.setOnClickListener(v->{
                 if(moving!=null)return;sound();
                 if(!available(id)){row.animate().cancel();row.setTranslationX(0);if(motion())row.animate().translationX(px(6)).setDuration(70).withEndAction(()->row.animate().translationX(0).setDuration(320).setInterpolator(new OvershootInterpolator(3f)).start()).start();return;}
@@ -940,7 +938,7 @@ public final class MainActivity extends Activity {
             for(View v:new View[]{row,other}){float from=v==row?rowTop-otherTop:otherTop-rowTop;v.animate().cancel();v.setTranslationY(from);
                 if(motion())v.animate().translationY(0).setDuration(300).setInterpolator(ease).start();else v.setTranslationY(0);}
             row.animate().scaleX(1.045f).scaleY(1.045f).setDuration(300).start();
-            navigationSound(j);save();drawPages();
+            save();drawPages();
         }
         void drop(View row){moving=null;sound();setHint();for(Runnable r:paints.values())r.run();lift(row,true);save();}
         void save(){WidgetBoard.save(prefs,order,off);}
@@ -987,7 +985,7 @@ public final class MainActivity extends Activity {
             if(toggle!=null){boolean on=toggle.equals("motion")?motion():prefs.getBoolean(toggle,true);track.setBackground(shape(on?0xFF34C759:f||light?0x2E111827:0x33FFFFFF,12));knob.setBackground(shape(Color.WHITE,10));knob.setElevation(px(1.5f));
                 float x=on?px(16):0;knob.animate().cancel();if(motion())knob.animate().translationX(x).setDuration(260).setInterpolator(spring).start();else knob.setTranslationX(x);}};
         paint.run();
-        row.setOnFocusChangeListener((v,f)->{paint.run();row.animate().cancel();if(motion())row.animate().scaleX(f?1.02f:1).scaleY(f?1.02f:1).setDuration(300).setInterpolator(spring).start();else{row.setScaleX(1);row.setScaleY(1);}row.setElevation(px(f?10:0));if(f){onFocus.run();navigationSound(parent.indexOfChild(row));reveal(row);}});
+        row.setOnFocusChangeListener((v,f)->{paint.run();row.animate().cancel();if(motion())row.animate().scaleX(f?1.02f:1).scaleY(f?1.02f:1).setDuration(300).setInterpolator(spring).start();else{row.setScaleX(1);row.setScaleY(1);}row.setElevation(px(f?10:0));if(f){onFocus.run();reveal(row);}});
         row.setOnClickListener(v->{sound();
             if(toggle!=null){boolean on=toggle.equals("motion")?motion():prefs.getBoolean(toggle,true);prefs.edit().putBoolean(toggle,!on).apply();
                 if(toggle.equals("clock"))clock.setVisibility(!on?View.VISIBLE:View.GONE);paint.run();}
@@ -1054,7 +1052,7 @@ public final class MainActivity extends Activity {
                 if(key==KeyEvent.KEYCODE_DPAD_RIGHT && index%6<5 && index+1<tiles.size()) next=index+1;
                 if(key==KeyEvent.KEYCODE_DPAD_DOWN && index+6<tiles.size()) next=index+6;
                 if(key==KeyEvent.KEYCODE_DPAD_UP && index>=6) next=index-6;
-                if(next>=0){if(e.getRepeatCount()==0 || e.getRepeatCount()%2==0){homeGreeting=false;lastDirectionX=Integer.compare(next%6,index%6);lastDirectionY=Integer.compare(next/6,index/6);navigationSound(next);tiles.get(next).requestFocus();}return true;}
+                if(next>=0){if(e.getRepeatCount()==0 || e.getRepeatCount()%2==0){homeGreeting=false;lastDirectionX=Integer.compare(next%6,index%6);lastDirectionY=Integer.compare(next/6,index/6);tiles.get(next).requestFocus();}return true;}
                 return key==KeyEvent.KEYCODE_DPAD_LEFT || key==KeyEvent.KEYCODE_DPAD_RIGHT || key==KeyEvent.KEYCODE_DPAD_DOWN;
             });
         }

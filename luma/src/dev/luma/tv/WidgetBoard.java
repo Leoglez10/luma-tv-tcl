@@ -22,7 +22,7 @@ final class WidgetBoard extends FrameLayout {
 
     interface Host {
         float unit();boolean light();boolean motion();
-        void step(int index);void open();
+        void open();
         void hero(String key,String title,String detail);
         View up();View down(float screenX);
         /** The page changed to (house=true) or away from the Smart Home page; direction is +1 (right) or -1. */

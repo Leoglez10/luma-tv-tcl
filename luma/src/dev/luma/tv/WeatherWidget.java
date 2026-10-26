@@ -43,7 +43,7 @@ final class WeatherWidget extends Widget {
         slots=new LinearLayout(context);addView(slots,pos(w-PAD*2,62,PAD,SLOTS_Y));
         error=text("",12.5f,ink(0x99),"sans-serif");error.setGravity(Gravity.CENTER);error.setVisibility(GONE);addView(error,pos(w-PAD*2,16,PAD,134));
         setFocusable(true);setFocusableInTouchMode(true);setSoundEffectsEnabled(false);setPivotX(px(w/2));setPivotY(px(WidgetBoard.ROW_H/2));
-        setOnFocusChangeListener((v,f)->{focused=f;paintFocus();if(f){heroNow();host.step(0);}});
+        setOnFocusChangeListener((v,f)->{focused=f;paintFocus();if(f)heroNow();});
         setOnClickListener(v->{host.open();press(this,1.04f);if(data==null){load(true);return;}daily=!daily;fillSlots(true);heroNow();});
         try{String raw=host.prefs().getString("weather_json","");if(!raw.isEmpty()&&key().equals(host.prefs().getString("weather_key",""))){data=new JSONObject(raw);fill();}}catch(JSONException ignored){}
         if(data==null)placeholder();

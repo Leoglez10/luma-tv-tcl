@@ -40,5 +40,4 @@ def write(name, duration, confirm=False):
     print(f'{path.name}: {duration*1000:.0f} ms, peak {20*math.log10(max(map(abs,samples))):.1f} dBFS, RMS {20*math.log10(rms):.1f} dBFS')
 
 
-write('soft_step', .145)
 write('soft_open', .195, confirm=True)

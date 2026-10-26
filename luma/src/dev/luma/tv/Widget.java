@@ -46,7 +46,7 @@ abstract class Widget extends FrameLayout {
             paint.accept(f);v.animate().cancel();float s=f?scale:1;
             if(motion())v.animate().scaleX(s).scaleY(s).setDuration(f?460:300).setInterpolator(f?spring:ease).start();else{v.setScaleX(s);v.setScaleY(s);}
             v.setElevation(px(f?12:0));
-            if(f){String[] h=hero.get();host.hero(h[0],h[1],h[2]);host.step(index);}
+            if(f){String[] h=hero.get();host.hero(h[0],h[1],h[2]);}
         });
         v.setOnClickListener(view->{host.open();press(v,scale);click.run();});
         paint.accept(false);
