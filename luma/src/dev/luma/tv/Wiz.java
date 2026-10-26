@@ -12,8 +12,9 @@ final class Wiz {
         boolean on;int dimming=-1,r=-1,g=-1,b=-1,temp=-1;
         /** The light's own colour, to tint its tile. */
         int color(){
-            if(r>=0&&g>=0&&b>=0&&(r|g|b)!=0)return 0xFF000000|r<<16|g<<8|b;
-            if(temp>0){float f=Math.max(0,Math.min(1,(temp-2200)/4300f));return 0xFF000000|255<<16|Math.round(170+f*80)<<8|Math.round(90+f*165);}
+            // Near-white colours would hide the tile's white glyph: whites show as amber (warm) to sky blue (cold).
+            if(r>=0&&g>=0&&b>=0&&(r|g|b)!=0&&Math.min(r,Math.min(g,b))<200)return 0xFF000000|r<<16|g<<8|b;
+            if(temp>0){float f=Math.max(0,Math.min(1,(temp-2200)/4300f));return 0xFF000000|Math.round(255-f*155)<<16|Math.round(159+f*51)<<8|Math.round(10+f*245);}
             return 0xFFFFD60A;
         }
         String status(){return on?(dimming>=0?"Encendida · "+dimming+"%":"Encendida"):"Apagada";}
