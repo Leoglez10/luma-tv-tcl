@@ -112,6 +112,9 @@ final class Glyph extends View {
                 paint.setStyle(Paint.Style.FILL);path.moveTo(cx+8*u,cy-8*u);path.lineTo(cx+2*u,cy+9*u);path.lineTo(cx-0.6f*u,cy+0.6f*u);path.lineTo(cx-9*u,cy-2*u);path.close();c.drawPath(path,paint);break;
             case "play":paint.setStyle(Paint.Style.FILL);triangle(c,cx+1*u,cy,17*u,true);break;
             case "pause":paint.setStyle(Paint.Style.FILL);r.set(cx-6.5f*u,cy-8*u,cx-2.2f*u,cy+8*u);c.drawRoundRect(r,1.2f*u,1.2f*u,paint);r.set(cx+2.2f*u,cy-8*u,cx+6.5f*u,cy+8*u);c.drawRoundRect(r,1.2f*u,1.2f*u,paint);break;
+            case "expand":
+                c.drawLine(cx+2*u,cy-8*u,cx+8*u,cy-8*u,paint);c.drawLine(cx+8*u,cy-8*u,cx+8*u,cy-2*u,paint);c.drawLine(cx+8*u,cy-8*u,cx+2.5f*u,cy-2.5f*u,paint);
+                c.drawLine(cx-2*u,cy+8*u,cx-8*u,cy+8*u,paint);c.drawLine(cx-8*u,cy+8*u,cx-8*u,cy+2*u,paint);c.drawLine(cx-8*u,cy+8*u,cx-2.5f*u,cy+2.5f*u,paint);break;
             case "next":case "previous":{
                 paint.setStyle(Paint.Style.FILL);boolean next=kind.equals("next");float d=next?1:-1;
                 triangle(c,cx-d*3.6f*u,cy,12*u,next);triangle(c,cx+d*3.4f*u,cy,12*u,next);

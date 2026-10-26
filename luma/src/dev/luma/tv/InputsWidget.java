@@ -4,6 +4,8 @@ import android.content.*;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputManager;
+import android.view.*;
+import android.widget.FrameLayout;
 import java.util.*;
 
 /** Inputs: the TV's HDMI ports (and its antenna tuner) as tiles. OK switches the TV with Android TV's standard
@@ -81,22 +83,28 @@ final class InputsWidget extends Widget {
         String p=a.replaceAll("\\D+",""),q=b.replaceAll("\\D+","");
         try{return Long.compare(p.isEmpty()?0:Long.parseLong(p),q.isEmpty()?0:Long.parseLong(q));}catch(NumberFormatException e){return a.compareToIgnoreCase(b);}
     }
-    static float widthFor(int n){return n>4?560:424;}
+    /** Always two columns, so Inputs fits next to Control; more than four inputs put the rest behind a + tile. */
+    static float widthFor(int n){return 424;}
 
     final ArrayList<Input> inputs;
     final ArrayList<Tile> tiles=new ArrayList<>();
+    final float tileW=(WidgetBoard.width("inputs")-PAD*2-GAP)/2,tileH=(WidgetBoard.ROW_H-PAD*2-GAP)/2;
     final Runnable tick=new Runnable(){public void run(){if(!active)return;refresh();postDelayed(this,10000);}};
 
     InputsWidget(Context context,WidgetBoard.Host host){
         super(context,host,WidgetBoard.width("inputs"));
         inputs=list(context);
-        int columns=inputs.size()>4?3:2,rows=inputs.size()>columns?2:1;
-        float tileW=(w-PAD*2-GAP*(columns-1))/columns,tileH=(WidgetBoard.ROW_H-PAD*2-GAP)/2;
+        int columns=2,rows=inputs.size()>columns?2:1,shown=inputs.size()>4?3:inputs.size();
         float top=rows==1?(WidgetBoard.ROW_H-tileH)/2:PAD;
-        for(int i=0;i<inputs.size();i++){
+        for(int i=0;i<shown;i++){
             final Input in=inputs.get(i);
             Tile t=new Tile(in.glyph,in.name,tileW,tileH,i,()->open(in));t.key="input:"+in.id;t.tint=in.color;
             addView(t,pos(tileW,tileH,PAD+(i%columns)*(tileW+GAP),top+(i/columns)*(tileH+GAP)));tiles.add(t);
+        }
+        if(shown<inputs.size()){
+            Tile more=new Tile("hdmi","Más",tileW,tileH,3,this::openAll);more.key="input:more";
+            more.set((inputs.size()-shown)+" entradas más","Todas tus entradas · OK las muestra",false);
+            addView(more,pos(tileW,tileH,PAD+tileW+GAP,top+tileH+GAP));
         }
         paintStates();
     }
@@ -108,13 +116,25 @@ final class InputsWidget extends Widget {
         paintStates();
     }
     private void paintStates(){
-        for(int i=0;i<tiles.size();i++){
-            Input in=inputs.get(i);Tile t=tiles.get(i);
-            String state=in.tuner?"Canales de antena y cable":in.state==TvInputManager.INPUT_STATE_CONNECTED?(in.cec?"Encendido":"Conectado"):in.state==TvInputManager.INPUT_STATE_CONNECTED_STANDBY?"En espera":"Nada conectado";
-            if(in.cec)state=in.port+" · "+state;
-            String hero=state+" · OK cambia a "+(in.cec?"este dispositivo":in.name);
-            t.set(state,hero,!in.tuner&&in.state==TvInputManager.INPUT_STATE_CONNECTED);
-        }
+        for(int i=0;i<tiles.size();i++)paint(tiles.get(i),inputs.get(i));
+    }
+    private void paint(Tile t,Input in){
+        String state=in.tuner?"Canales de antena y cable":in.state==TvInputManager.INPUT_STATE_CONNECTED?(in.cec?"Encendido":"Conectado"):in.state==TvInputManager.INPUT_STATE_CONNECTED_STANDBY?"En espera":"Nada conectado";
+        if(in.cec)state=in.port+" · "+state;
+        String hero=state+" · OK cambia a "+(in.cec?"este dispositivo":in.name);
+        t.set(state,hero,!in.tuner&&in.state==TvInputManager.INPUT_STATE_CONNECTED);
+    }
+    /** Every input, two to a row, over a dimmed Home; Back closes it. */
+    private void openAll(){
+        FrameLayout o=host.overlay();int rows=(inputs.size()+1)/2;float pw=PAD*2+tileW*2+GAP,ph=64+rows*(tileH+GAP)+PAD;
+        FrameLayout panel=new FrameLayout(getContext());panel.setBackground(round(light()?0xF5F2F2F7:0xF51C1C1E,24));panel.setElevation(px(24));panel.setClipChildren(false);
+        LayoutParams lp=new LayoutParams(px(pw),px(ph));lp.gravity=Gravity.CENTER;o.addView(panel,lp);
+        panel.addView(text("Entradas",20,ink(0xFF),"sans-serif-medium"),pos(pw-48,26,24,22));
+        View first=null;
+        for(int i=0;i<inputs.size();i++){final Input in=inputs.get(i);
+            Tile t=new Tile(in.glyph,in.name,tileW,tileH,i,()->{host.closeOverlay();open(in);});t.key="input:"+in.id;t.tint=in.color;paint(t,in);
+            panel.addView(t,pos(tileW,tileH,PAD+(i%2)*(tileW+GAP),64+(i/2)*(tileH+GAP)));if(first==null)first=t;}
+        final View focus=first;post(()->{if(focus!=null)focus.requestFocus();});
     }
     private void open(Input in){
         if(in.id.startsWith("promo:"))return;

@@ -18,11 +18,12 @@ import java.util.*;
 final class LightsWidget extends Widget {
     static final float PAD=18,GAP=12;
     // ponytail: this household's bulbs by MAC (WiZ names from smart-home-local); a picker if bulbs ever change.
-    static final String[] ROOMS={"Cuarto","Sala"};
-    static final Bulb[] BULBS={new Bulb(true,"6c2990d14743",0),new Bulb(true,"6c2990d12892",1),
+    // The WiZ bulb smart-home-local calls "Sala" is at the entrance; the bedroom WiZ (6c2990d14743) is left out.
+    static final String[] ROOMS={"Entrada","Sala"};
+    static final Bulb[] BULBS={new Bulb(true,"6c2990d12892",0),
         new Bulb(false,"0050c2184b74",1),new Bulb(false,"0050c2d7aa8a",1)};
     static final int[] STEPS={100,50,20};
-    static final String[] TARGETS={"Cuarto","Sala","Todas"};
+    static final String[] TARGETS={"Entrada","Sala","Todas"};
     static final String[] WHITES={"Cálido","Neutro","Frío","Luz de día"};
     static final int[] KELVIN={2700,4000,5500,6500};
     static final String[] COLORS={"Rojo","Naranja","Amarillo","Verde","Cian","Azul","Morado","Rosa"};

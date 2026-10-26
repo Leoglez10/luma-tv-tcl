@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 final class WidgetBoard extends FrameLayout {
     static final float W=960,H=392,X=48,ROW_Y=190,ROW_H=186,ROW_W=864,GAP=16,DOTS_Y=380;
     /** Every widget, in the default order. */
-    static final String[] IDS={"house","upnext","weather","lights","inputs","control","music"};
+    static final String[] IDS={"house","upnext","weather","lights","music","inputs","control"};
     /** Widgets do their network and disk work here, away from the launcher's own loader (wallpapers, apps). */
     static final ExecutorService IO=Executors.newFixedThreadPool(2,r->{Thread t=new Thread(r,"Luma widgets");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY+1);return t;});
 
@@ -51,6 +51,8 @@ final class WidgetBoard extends FrameLayout {
      *  the one it follows in IDS. */
     static ArrayList<String> order(SharedPreferences prefs){
         ArrayList<String> ids=new ArrayList<>();if(Promo.on){ids.addAll(Arrays.asList(Promo.ORDER));return ids;}
+        // Once: the household's new layout (Lights with Now Playing, Inputs with Control) replaces a saved order.
+        if(!prefs.getBoolean("widget_order_v2",false))prefs.edit().remove("widget_order").putBoolean("widget_order_v2",true).apply();
         for(String id:prefs.getString("widget_order","").split(","))if(Arrays.asList(IDS).contains(id)&&!ids.contains(id))ids.add(id);
         for(int i=0;i<IDS.length;i++)if(!ids.contains(IDS[i]))ids.add(i==0?0:ids.indexOf(IDS[i-1])+1,IDS[i]);
         return ids;
