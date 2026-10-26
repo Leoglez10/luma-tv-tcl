@@ -813,7 +813,7 @@ public final class MainActivity extends Activity {
         caption(list,"Inicio",false);
         widgetsRow=controls.size();
         controls.add(option(list,"Widgets de Inicio",this::widgetSummary,null,this::widgetEditor,
-            ()->preview(0,"Widgets de Inicio","Elige qué muestra Inicio sobre tus apps — "+(house?"Casa inteligente, ":"")+"A continuación, Clima, "+(InputsWidget.count>0?"Entradas, ":"")+"Reproduciendo y Control — y su orden. Izquierda y Derecha cambian de página.")));
+            ()->preview(0,"Widgets de Inicio","Elige qué muestra Inicio sobre tus apps — "+(house?"Casa inteligente, ":"")+"A continuación, Clima, Luces, "+(InputsWidget.count>0?"Entradas, ":"")+"Reproduciendo y Control — y su orden. Izquierda y Derecha cambian de página.")));
         controls.add(option(list,"Temperatura",()->new String[]{"Automática","Celsius","Fahrenheit"}[unitIndex()],null,this::temperatureMenu,
             ()->preview(0,"Temperatura","El clima en Celsius o Fahrenheit. Automática sigue la región de la TV. El pronóstico es para Zapopan o Guadalajara: OK sobre el clima cambia de ciudad.")));
         if(house)controls.add(option(list,"Apps de escenas",()->"Elegir",null,this::sceneApps,()->preview(0,"Apps de escenas","Abre una app después de una escena: Película puede iniciar Netflix al bajar las luces.")));

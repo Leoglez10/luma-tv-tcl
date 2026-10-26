@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 final class WidgetBoard extends FrameLayout {
     static final float W=960,H=392,X=48,ROW_Y=190,ROW_H=186,ROW_W=864,GAP=16,DOTS_Y=380;
     /** Every widget, in the default order. */
-    static final String[] IDS={"house","upnext","weather","inputs","control","music"};
+    static final String[] IDS={"house","upnext","weather","lights","inputs","control","music"};
     /** Widgets do their network and disk work here, away from the launcher's own loader (wallpapers, apps). */
     static final ExecutorService IO=Executors.newFixedThreadPool(2,r->{Thread t=new Thread(r,"Luma widgets");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY+1);return t;});
 
@@ -33,12 +33,13 @@ final class WidgetBoard extends FrameLayout {
         void launch(String pkg);void start(Intent intent);
         SharedPreferences prefs();Activity activity();
     }
-    static String title(String id){switch(id){case "house":return "Casa inteligente";case "inputs":return "Entradas";case "upnext":return "A continuación";case "weather":return "Clima";case "music":return "Reproduciendo";default:return "Control";}}
-    static String glyph(String id){switch(id){case "house":return "home";case "inputs":return "hdmi";case "upnext":return "tv";case "weather":return "partly";case "music":return "note";default:return "gear";}}
+    static String title(String id){switch(id){case "house":return "Casa inteligente";case "inputs":return "Entradas";case "upnext":return "A continuación";case "weather":return "Clima";case "lights":return "Luces";case "music":return "Reproduciendo";default:return "Control";}}
+    static String glyph(String id){switch(id){case "house":return "home";case "inputs":return "hdmi";case "upnext":return "tv";case "weather":return "partly";case "lights":return "bulb";case "music":return "note";default:return "gear";}}
     static String about(String id){switch(id){
         case "house":return "Escenas y tu casa en 3D en vivo, desde House Control TV.";
         case "upnext":return "Retoma series y videos donde los dejaste, y tus apps recientes.";
         case "weather":return "Ahora, las próximas horas y los próximos días donde estás.";
+        case "lights":return "Tus focos WiZ: enciende, apaga, cambia el brillo y el ambiente.";
         case "music":return "Lo que suena en esta TV, con reproducir, pausar y saltar.";
         case "inputs":return "Tus dispositivos HDMI y la TV en vivo: cambia a una consola o un decodificador con un solo botón.";
         default:return "Wi-Fi, imagen y sonido, accesorios y configuración en un solo lugar.";}}
@@ -105,6 +106,7 @@ final class WidgetBoard extends FrameLayout {
             case "weather":return new WeatherWidget(c,host);
             case "music":return new NowPlayingWidget(c,host);
             case "control":return new ControlWidget(c,host);
+            case "lights":return new LightsWidget(c,host);
             case "inputs":return new InputsWidget(c,host);
             default:return null;
         }

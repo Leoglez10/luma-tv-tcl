@@ -91,6 +91,10 @@ final class Glyph extends View {
                 r.set(cx-4.2f*u,cy-10*u,cx+4.2f*u,cy+10*u);c.drawRoundRect(r,3.2f*u,3.2f*u,paint);
                 c.drawCircle(cx,cy-4.6f*u,2.2f*u,paint);
                 paint.setStyle(Paint.Style.FILL);c.drawCircle(cx,cy+1.8f*u,1.1f*u,paint);c.drawCircle(cx,cy+5.6f*u,1.1f*u,paint);break;
+            case "bulb":
+                r.set(cx-6.5f*u,cy-10*u,cx+6.5f*u,cy+3*u);c.drawArc(r,135,270,false,paint);
+                c.drawLine(cx-4.6f*u,cy+1.1f*u,cx-3*u,cy+5*u,paint);c.drawLine(cx+4.6f*u,cy+1.1f*u,cx+3*u,cy+5*u,paint);
+                c.drawLine(cx-3*u,cy+5*u,cx+3*u,cy+5*u,paint);c.drawLine(cx-2.2f*u,cy+8*u,cx+2.2f*u,cy+8*u,paint);break;
             case "gear":
                 c.drawCircle(cx,cy,3*u,paint);c.drawCircle(cx,cy,7*u,paint);
                 paint.setStrokeWidth(2.6f*u);paint.setStrokeCap(Paint.Cap.BUTT);
