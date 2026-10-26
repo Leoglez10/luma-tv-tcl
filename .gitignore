@@ -8,3 +8,9 @@ launcher/tmdb.properties
 # Local test output and TV screenshots can contain private network details.
 launcher/build-check.log
 docs/design/installed-*.png
+
+# Personal: this household's TV notes, previous launcher and its scripts. Kept locally, not published.
+docs/
+launcher/
+scripts/
+odd/

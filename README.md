@@ -1,69 +1,170 @@
-# Luma TV — TCL edition
+# Luma TV — edición TCL
 
-A calm, ad-free home screen for a TCL Google TV (`G10_4K_GB_NF`, Android 12), built on a fork of
-[Luma](https://github.com/0xProbabillity/luma-tv) and adapted to this household: all in Spanish, the house lights,
-the remote's app buttons and a few layout changes. No ads, no sponsored rows, no tracking.
+Una pantalla de inicio tranquila y sin anuncios para Android TV y Google TV, en español, basada en
+[Luma](https://github.com/0xProbabillity/luma-tv). Controla los focos de tu casa, abre apps con los botones del control
+TCL y muestra lo que estabas viendo y escuchando, sin filas patrocinadas ni rastreo.
 
-The app lives in [`luma/`](luma). The plan, decisions and verification notes are in
-[`docs/luma-fork-plan.md`](docs/luma-fork-plan.md).
+> 💡 Probada en una TCL Google TV con Android 12. Debería funcionar en cualquier Android TV con Android 8.0 o
+> superior; lo específico de TCL está señalado.
 
-## What it does
+<p align="center">
+  <img src="luma/docs/widgets.jpg" width="80%" alt="Widgets de Luma: A continuación y Clima">
+  <br><sub>Captura de Luma original (en inglés). Esta edición se ve igual, en español.</sub>
+</p>
 
-Home has three pages of widgets above a row of favourite apps:
+## Contenido
 
-| Page | Widgets |
+- [¿Qué es?](#-qué-es)
+- [Qué puedes hacer](#-qué-puedes-hacer)
+- [Instalación](#-instalación)
+- [Uso con el control](#-uso-con-el-control)
+- [Adáptala a tu casa](#-adáptala-a-tu-casa)
+- [Privacidad y permisos](#-privacidad-y-permisos)
+- [Volver al launcher original](#-volver-al-launcher-original)
+- [Problemas comunes](#-problemas-comunes)
+- [Desarrollo](#-desarrollo)
+- [Estructura](#-estructura)
+- [Créditos y licencia](#-créditos-y-licencia)
+
+## 🎯 ¿Qué es?
+
+Un **launcher** es la pantalla que aparece al apretar *Home* en la tele. El de Google TV ocupa mucha memoria y llena
+el inicio de anuncios y recomendaciones. Esta app lo reemplaza por una pantalla simple: tus apps favoritas y unos
+cuantos widgets útiles sobre un fondo animado.
+
+Es para quien tiene una Android TV o Google TV (en especial TCL), habla español y quiere un inicio limpio, sin
+depender de cuentas ni de la nube.
+
+## ✨ Qué puedes hacer
+
+El inicio tiene tres páginas de widgets sobre tu fila de apps:
+
+| Página | Widgets |
 |---|---|
-| 1 | **A continuación** (one card per series, at most two per app, ViX left out; **+** opens up to 12) · **Clima** (OK switches Zapopan ↔ Guadalajara, hold OK for hours ↔ days) |
-| 2 | **Luces** (Entrada, Sala, Todas, Colores) · **Reproduciendo** (Spotify and other music apps, with a full-screen player) |
-| 3 | **Entradas** (HDMI and live TV; **Más** opens every input) · **Control** (network, picture and sound, accessories, settings) |
+| 1 | **A continuación**: lo que estabas viendo en Netflix, Prime Video y otras apps (una tarjeta por serie, máximo dos por app). **+** abre hasta 12. · **Clima**: OK cambia de ciudad, mantener OK cambia entre horas y días. |
+| 2 | **Luces**: tus focos por cuarto, todos a la vez y un panel de colores. · **Reproduciendo**: la música que suena en la tele, con un reproductor a pantalla completa. |
+| 3 | **Entradas**: HDMI y TV en vivo; **Más** abre todas. · **Control**: red, imagen y sonido, accesorios y configuración. |
 
-- **Spanish everywhere:** interface, dates, city names and `luma.sh` messages.
-- **Lights:** the household's WiZ and CozyLife bulbs over the local network, with no vendor app or cloud. Rooms switch
-  on and off, hold OK steps brightness, and the **Colores** panel has whites (2700–6500 K), eight colours,
-  brightness and profiles (Película, Lectura, Cena, Relajado, Fiesta, Apagar).
-- **Full-screen player:** the expand button in Reproduciendo shows the song over its blurred artwork, with a big cover,
-  live progress and large controls.
-- **Remote app buttons:** YouTube, Prime Video, Netflix and ViX open their apps from anywhere; the Apple TV button opens
-  Spotify; TCL Channel works again.
-- **Quiet:** no navigation sounds; only a soft sound when an app opens (Ajustes → *Sonido al abrir apps*).
+- **Todo en español:** interfaz, fechas, ciudades y mensajes del instalador.
+- **Luces sin app ni nube:** focos **WiZ** y **CozyLife** por tu red local. Prender y apagar, brillo, blancos
+  de 2700 a 6500 K, ocho colores y perfiles (Película, Lectura, Cena, Relajado, Fiesta, Apagar).
+- **Reproductor grande:** la canción con su carátula sobre un fondo difuminado, barra de progreso y controles grandes.
+- **Botones del control TCL:** YouTube, Prime Video, Netflix, ViX y Apple TV abren la app que elijas, desde
+  cualquier pantalla.
+- **Silenciosa:** sin sonidos al moverte; solo uno suave al abrir una app (se apaga en Ajustes).
 
-Upstream Luma features that remain: living wallpapers, light by day and dark at night, hold OK on an app to move or
-hide it, and the Apps tab with everything installed.
+De Luma original se conservan los fondos animados, el modo claro de día y oscuro de noche, mantener OK sobre una app
+para moverla u ocultarla, y la pestaña Apps con todo lo instalado.
 
-## Install
+## 📦 Instalación
 
-Requirements: the TV with network debugging on, a Mac with `adb`, a JDK 17 or newer and the Android SDK build-tools
-`36.0.0` (Luma builds without Gradle).
+Se instala desde una computadora conectada a la misma red que la tele.
+
+**Necesitas:**
+
+| Dónde | Qué |
+|---|---|
+| Tele | Depuración por red activada: Configuración → Preferencias del dispositivo → Información, presiona *Compilación* 7 veces y activa la depuración en Opciones para desarrolladores |
+| Computadora | macOS o Linux con [ADB](https://developer.android.com/tools/releases/platform-tools) |
+| Para compilar | JDK 17 o superior, Android SDK build-tools `36.0.0` y plataforma `android-34`, Python 3. No usa Gradle |
+
+**Pasos:**
 
 ```bash
-adb connect 192.168.x.x:5555          # the TV; its address can change
+adb connect <IP-de-tu-tele>:5555        # la IP está en Configuración → Red
 cd luma
-ANDROID_SDK_ROOT=<sdk> LUMA_JDK=<jdk> bash build.sh   # → dist/luma-tv.apk
-./luma.sh -s 192.168.x.x:5555 install
-./luma.sh -s 192.168.x.x:5555 home     # make Luma the home screen
-./luma.sh -s 192.168.x.x:5555 keys     # the remote's app buttons
-./luma.sh -s 192.168.x.x:5555 widgets  # Up Next and Now Playing permissions
+ANDROID_SDK_ROOT=<ruta-sdk> LUMA_JDK=<ruta-jdk> bash build.sh   # crea dist/luma-tv.apk
+./luma.sh -s <IP-de-tu-tele>:5555 install
+./luma.sh -s <IP-de-tu-tele>:5555 home      # Luma como pantalla de inicio
+./luma.sh -s <IP-de-tu-tele>:5555 keys      # botones de apps del control
+./luma.sh -s <IP-de-tu-tele>:5555 widgets   # permisos de A continuación y Reproduciendo
 ```
 
-`build.sh` expects `$SDK/platforms/android-34`; any newer `android.jar` linked there works.
+`./luma.sh status` muestra la tele, la versión instalada y qué app abre *Home*.
 
-**This TV in particular:**
-- The previous launcher `ar.gentleman.tvlauncher` is disabled; while it was enabled, every Luma update made the TV fall
-  back to it.
-- The remote's app buttons need TCL's `APP_AUTO_START` app-op, which `./luma.sh keys` grants.
-- TCL Channel needs `com.tcl.waterfall.overseas` enabled.
+> ⚠️ La primera compilación crea una llave de firma en `luma/.signing/`. Guárdala: Android no deja actualizar la app
+> con otra llave.
 
-## Going back
+**Teles TCL:**
+
+- Los botones del control necesitan el permiso `APP_AUTO_START` de TCL; `./luma.sh keys` lo concede. Sin él, el
+  sistema de TCL bloquea el servicio de botones.
+- El botón TCL Channel abre `com.tcl.waterfall.overseas`; si lo desactivaste, actívalo con
+  `adb shell pm enable com.tcl.waterfall.overseas`.
+
+## 🕹 Uso con el control
+
+| Dónde | OK | Mantener OK |
+|---|---|---|
+| Una app | La abre | Mostrar en inicio, mover u ocultar |
+| Clima | Cambia de ciudad | Horas ↔ días |
+| Un cuarto en Luces | Prende o apaga | Cambia el brillo (100 → 50 → 20 %) |
+| Colores | Abre el panel de colores | — |
+| Reproduciendo ⤢ | Reproductor a pantalla completa | — |
+| **+** / **Más** | Muestra todo | — |
+
+*Atrás* cierra cualquier panel. Izquierda y derecha cambian de página.
+
+## 🏠 Adáptala a tu casa
+
+Algunas opciones son constantes en el código, configuradas para la tele donde se hizo esta edición. Cámbialas antes
+de compilar; todas están en `luma/src/dev/luma/tv/`:
+
+| Qué | Dónde |
+|---|---|
+| Tus focos (WiZ o CozyLife, por MAC) y los nombres de cuartos | `LightsWidget.BULBS`, `LightsWidget.ROOMS` |
+| Ciudades del clima y sus coordenadas | `WeatherWidget.CITIES`, `WeatherWidget.PLACES` |
+| Qué app abre cada botón del control (por código de tecla) | `KeyService.SCANS`, `KeyService.APPS` |
+| Apps que no aparecen en A continuación | `UpNextWidget.HIDDEN` |
+
+**Cómo encontrar los datos:**
+- **Focos:** un WiZ responde a un broadcast UDP en el puerto 38899 y un CozyLife en el 6095; la respuesta trae su MAC.
+- **Botones:** corre `adb shell getevent -lt` y presiona el botón; anota el código que aparece.
+- **Saludo:** `LUMA_GREETING=Hola bash build.sh`, o tu nombre en Ajustes → *Tu nombre*.
+
+## 🔒 Privacidad y permisos
+
+La app no tiene cuentas ni analítica. Lo que sale de la tele:
+
+- **Clima:** una petición a [Open-Meteo](https://open-meteo.com) (gratis, sin cuenta) con las coordenadas redondeadas de la ciudad.
+- **Carátulas y pósters:** se descargan desde los enlaces que publican las propias apps.
+- **Focos:** se controlan solo dentro de tu red local, sin internet.
+
+Los ajustes se guardan en la tele, dentro de la app. Los permisos especiales se dan con `luma.sh` y se pueden quitar
+en Configuración → Apps → Acceso especial:
+
+| Permiso | Para qué |
+|---|---|
+| Lectura de listas de TV | A continuación (la lista *Seguir viendo* de Android TV) |
+| Acceso a notificaciones | Reproduciendo; Luma no lee notificaciones, solo la sesión de música |
+| Acceso a uso de apps | Apps usadas recientemente |
+| Servicio de accesibilidad | Solo filtra los botones de apps del control; no lee la pantalla |
+
+## ↩️ Volver al launcher original
 
 ```bash
-adb shell pm enable ar.gentleman.tvlauncher   # only if you want the previous launcher back
-cd luma && ./luma.sh restore                    # returns HOME and removes the button service
+./luma.sh -s <IP-de-tu-tele>:5555 restore
 ```
 
-## Development
+Reactiva el launcher que `home` apagó, regresa *Home* a él y quita el servicio de botones. Luma queda instalada
+(`adb uninstall dev.luma.tv` la borra). `restore` recuerda qué cambió en cada tele, en `luma/.local/`.
 
-Plain Java, no AndroidX and no runtime dependencies: a launcher stays in memory all the time. The logic that needs
-no Android runs as plain JVM checks from `luma/`:
+## 🧰 Problemas comunes
+
+| Problema | Qué hacer |
+|---|---|
+| *Home* abre otro launcher después de actualizar Luma | Desactiva ese launcher: `adb shell pm disable-user --user 0 <paquete>` |
+| Un cuarto dice "Sin respuesta" | El foco está apagado desde el apagador o cambió de red; OK lo vuelve a buscar |
+| Los botones del control no hacen nada | Corre `./luma.sh keys` otra vez (TCL puede quitar el permiso) |
+| A continuación no muestra una app | Esa app no publica su *Seguir viendo* en Android TV (YouTube suele no hacerlo) |
+| `adb` no encuentra la tele | La IP cambió: revisa Configuración → Red y vuelve a `adb connect` |
+
+## 👨‍💻 Desarrollo
+
+Java simple, sin AndroidX ni dependencias: un launcher vive en memoria todo el tiempo y cada dependencia cuesta RAM.
+`build.sh` compila con `aapt2`, `javac` y `d8` directamente.
+
+Las partes sin Android tienen pruebas que corren en la computadora, desde `luma/`:
 
 ```bash
 javac -d build/test src/dev/luma/tv/Devices.java tools/DevicesTest.java && java -cp build/test dev.luma.tv.DevicesTest
@@ -72,24 +173,26 @@ javac -cp json.jar -d build/test src/dev/luma/tv/Wiz.java src/dev/luma/tv/Cozy.j
 javac -d build/test src/dev/luma/tv/WatchNext.java tools/WatchNextTest.java && java -cp build/test dev.luma.tv.WatchNextTest
 ```
 
-`json.jar` is `org.json` (Android's own copy is stubbed on a desktop JVM).
+`json.jar` es la librería `org.json` (la copia de Android no funciona fuera de Android).
 
-## Upstream
+## 🗺 Estructura
 
-`luma/` is a `git subtree` of [0xProbabillity/luma-tv](https://github.com/0xProbabillity/luma-tv) (MIT, see
-[`luma/LICENSE`](luma/LICENSE)). To bring in upstream changes:
+| Ruta | Qué hay |
+|---|---|
+| `luma/src/dev/luma/tv/` | El código: `MainActivity` (inicio), un archivo por widget, `Wiz` y `Cozy` (protocolos de focos), `KeyService` (botones) |
+| `luma/res/` | Recursos: textos, sonidos, fondos |
+| `luma/tools/` | Pruebas y generadores (sonidos, zonas horarias) |
+| `luma/build.sh` | Compilación sin Gradle |
+| `luma/luma.sh` | Instalar, poner como inicio, permisos y restaurar |
+
+## 🙏 Créditos y licencia
+
+Basada en [Luma](https://github.com/0xProbabillity/luma-tv) de [@0xProbabillity](https://x.com/0xProbabillity),
+con licencia MIT ([`luma/LICENSE`](luma/LICENSE)). `luma/` es un *git subtree* de ese repositorio; para traer sus
+mejoras:
 
 ```bash
 git subtree pull --prefix=luma https://github.com/0xProbabillity/luma-tv.git main
 ```
 
-Merge pull requests with a merge commit, not a squash, so the subtree history stays intact.
-
-## Repository
-
-| Path | What |
-|---|---|
-| [`luma/`](luma) | The home screen running on the TV |
-| [`docs/`](docs) | Plan, TV optimization notes, measurements |
-| [`launcher/`](launcher) | **Legacy:** the first custom launcher, kept for reference ([README](launcher/README.md)) |
-| [`scripts/`](scripts) | Install and HOME-recovery scripts for the legacy launcher |
+Haz merge de los pull requests con *merge commit*, no con *squash*, para no romper el historial del subtree.
