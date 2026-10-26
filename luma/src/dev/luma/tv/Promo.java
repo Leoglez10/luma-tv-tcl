@@ -14,11 +14,11 @@ final class Promo {
     static final String CITY="Miami";
     /** {title, line, detail, wallpaper, progress} */
     static final Object[][] VIDEOS={
-        {"Under the Milky Way","18 min left · YouTube","A night under the stars · 18 min left in YouTube",R.drawable.wp_milkyway,.62f},
-        {"Calm Sea, 4K","Next episode · YouTube","Waves at sunrise · Next episode in YouTube",R.drawable.wp_sea,.0f},
-        {"First Light","6 min left · YouTube","Dawn over the mountains · 6 min left in YouTube",R.drawable.wp_dawn,.86f},
+        {"Bajo la Vía Láctea","Quedan 18 min · YouTube","Una noche bajo las estrellas · Quedan 18 min en YouTube",R.drawable.wp_milkyway,.62f},
+        {"Mar en calma, 4K","Siguiente episodio · YouTube","Olas al amanecer · Siguiente episodio en YouTube",R.drawable.wp_sea,.0f},
+        {"Primera luz","Quedan 6 min · YouTube","Amanecer sobre las montañas · Quedan 6 min en YouTube",R.drawable.wp_dawn,.86f},
     };
-    static final String SONG="Golden Hour",ARTIST="Nova Lane",SOURCE="YouTube Music";
+    static final String SONG="Hora dorada",ARTIST="Nova Lane",SOURCE="YouTube Music";
     static final long SONG_LENGTH=412000,SONG_START=38000;
     static long since=0,offset=SONG_START;static boolean playing=true;
     static long position(){long p=offset+(playing?android.os.SystemClock.elapsedRealtime()-since:0);return Math.min(SONG_LENGTH,p);}

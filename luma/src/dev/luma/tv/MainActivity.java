@@ -216,7 +216,7 @@ public final class MainActivity extends Activity {
         brand = text("luma", 23, Color.WHITE, "sans-serif-medium"); brand.setVisibility(View.GONE);
         root.addView(brand, pos(120, 32, 48, 29));
         LinearLayout navigation = new LinearLayout(this); navigation.setGravity(Gravity.CENTER);
-        String[] titles = {"Home", "Apps", "Settings"};
+        String[] titles = {"Inicio", "Apps", "Ajustes"};
         String[] pages = {"home", "apps", "settings"};
         for (int i=0;i<titles.length;i++) {
             final int index=i;
@@ -325,10 +325,10 @@ public final class MainActivity extends Activity {
         if (page.equals("settings")) { settings(focus); animatePage(previous,transition); return; }
         boolean home=page.equals("home");
         hero=new FrameLayout(this){@Override public boolean hasOverlappingRendering(){return false;}};
-        heroTitle=text(home ? welcome() : "All your apps", 42, ink(0xFF), "sans-serif-medium");
+        heroTitle=text(home ? welcome() : "Todas tus apps", 42, ink(0xFF), "sans-serif-medium");
         heroTitle.setLetterSpacing(-.035f); heroTitle.setSingleLine(true); heroTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); shadow(heroTitle,10);
         hero.addView(heroTitle,pos(home?392:860,54,0,0));
-        heroDescription=text(home ? greetingLine() : "Everything installed on this TV.", 16, ink(0xB3), "sans-serif");
+        heroDescription=text(home ? greetingLine() : "Todo lo instalado en esta TV.", 16, ink(0xB3), "sans-serif");
         heroDescription.setSingleLine(true); heroDescription.setEllipsize(android.text.TextUtils.TruncateAt.END); shadow(heroDescription,8); hero.addView(heroDescription,pos(home?392:860,22,1,60));
         // Without widgets, the greeting moves down to sit just above the favourites and the wallpaper stays open above it.
         ArrayList<ArrayList<String>> layout=home?WidgetBoard.pages(prefs,house,!InputsWidget.list(this).isEmpty()):new ArrayList<>();
@@ -339,7 +339,7 @@ public final class MainActivity extends Activity {
             houseWidgets=new HouseWidgets(this,unit,new HouseWidgets.Callbacks(){
                 public void up(){tabs.get(0).requestFocus();}
                 public void down(float x){focusNearestTile(x);}
-                public void open(){try{startActivity(new Intent().setComponent(new ComponentName("dev.housecontrol.tv","dev.housecontrol.tv.MainActivity")));overridePendingTransition(0,0);}catch(Exception e){Toast.makeText(MainActivity.this,"Install House Control to connect your home.",Toast.LENGTH_SHORT).show();}}
+                public void open(){try{startActivity(new Intent().setComponent(new ComponentName("dev.housecontrol.tv","dev.housecontrol.tv.MainActivity")));overridePendingTransition(0,0);}catch(Exception e){Toast.makeText(MainActivity.this,"Instala House Control para conectar tu casa.",Toast.LENGTH_SHORT).show();}}
                 public void focusHome(String title,String detail){holdGreeting=false;homeGreeting=false;setHero("@home:"+title,title,detail);}
                 public void activate(){sound();}
                 public boolean sceneApplied(String id){return MainActivity.this.sceneApplied(id);}
@@ -364,9 +364,9 @@ public final class MainActivity extends Activity {
         content.addView(scroll,pos(960, home ? 150 : 330,0,home ? 388 : 200));
         ArrayList<App> list=visibleApps(!home);
         if (!loaded) {
-            rows.addView(text("Finding your apps…",15,ink(0xBB),"sans-serif"));
+            rows.addView(text("Buscando tus apps…",15,ink(0xBB),"sans-serif"));
         } else if (list.isEmpty()) {
-            rows.addView(text("Your home is empty. Find your apps in the Apps tab.",15,ink(0xBB),"sans-serif"));
+            rows.addView(text("Tu Inicio está vacío. Encuentra tus apps en la pestaña Apps.",15,ink(0xBB),"sans-serif"));
         } else {
             int count=home ? Math.min(6,list.size()) : list.size();
             for (int start=0;start<count;start+=6) {
@@ -418,16 +418,16 @@ public final class MainActivity extends Activity {
     private String greetingLine(){return today();}
     /** "Hello, <name>" with the name saved in Settings, else the build's greeting: "Hello", or LUMA_GREETING /
      *  .local/greeting.txt (see build.sh). */
-    private String welcome(){String name=prefs.getString("name","").trim();return name.isEmpty()?getString(R.string.greeting):"Hello, "+name;}
+    private String welcome(){String name=prefs.getString("name","").trim();return name.isEmpty()?getString(R.string.greeting):"Hola, "+name;}
     /** Settings → Your name: typed with the TV keyboard and kept only in this app's storage on the TV. */
     private void nameEditor(){
         FrameLayout o=openOverlay(0xA6000000);
         FrameLayout panel=new FrameLayout(this);panel.setBackground(shape(0xF51C1C1E,24));panel.setElevation(px(24));
         FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(px(440),px(232));lp.gravity=Gravity.CENTER;o.addView(panel,lp);
-        panel.addView(text("Your name",22,Color.WHITE,"sans-serif-medium"),pos(392,30,24,24));
-        panel.addView(text("Home will say Hello and your name. Leave it empty for a plain Hello.",13,0xB3FFFFFF,"sans-serif"),pos(392,20,24,60));
+        panel.addView(text("Tu nombre",22,Color.WHITE,"sans-serif-medium"),pos(392,30,24,24));
+        panel.addView(text("Inicio dirá Hola y tu nombre. Déjalo vacío para un simple Hola.",13,0xB3FFFFFF,"sans-serif"),pos(392,20,24,60));
         EditText field=new EditText(this);field.setSingleLine(true);field.setText(prefs.getString("name",""));field.setSelection(field.getText().length());
-        field.setHint("Name");field.setHintTextColor(0x66FFFFFF);field.setTextColor(Color.WHITE);field.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,px(17));
+        field.setHint("Nombre");field.setHintTextColor(0x66FFFFFF);field.setTextColor(Color.WHITE);field.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,px(17));
         field.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(24)});field.setPadding(px(16),0,px(16),0);
         field.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE|android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         field.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
@@ -441,12 +441,12 @@ public final class MainActivity extends Activity {
         LinearLayout buttons=new LinearLayout(this);buttons.setOrientation(LinearLayout.HORIZONTAL);panel.addView(buttons,pos(392,42,24,166));
         LinearLayout a=new LinearLayout(this),b=new LinearLayout(this);a.setOrientation(LinearLayout.VERTICAL);b.setOrientation(LinearLayout.VERTICAL);
         buttons.addView(a,new LinearLayout.LayoutParams(px(120),-1));LinearLayout.LayoutParams gap=new LinearLayout.LayoutParams(px(120),-1);gap.leftMargin=px(10);buttons.addView(b,gap);
-        TextView done=(TextView)menuRow(a,"Save",false,save);done.setGravity(Gravity.CENTER);
-        TextView clear=(TextView)menuRow(b,"Clear",false,()->{field.setText("");field.requestFocus();});clear.setGravity(Gravity.CENTER);
+        TextView done=(TextView)menuRow(a,"Guardar",false,save);done.setGravity(Gravity.CENTER);
+        TextView clear=(TextView)menuRow(b,"Borrar",false,()->{field.setText("");field.requestFocus();});clear.setGravity(Gravity.CENTER);
         root.post(()->{field.requestFocus();((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(field,0);});
     }
-    private String greeting(){int h=Calendar.getInstance().get(Calendar.HOUR_OF_DAY);return h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
-    private String today(){return new SimpleDateFormat("EEEE, MMMM d",Locale.ENGLISH).format(new Date());}
+    private String greeting(){int h=Calendar.getInstance().get(Calendar.HOUR_OF_DAY);return h<5?"Buenas noches":h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches";}
+    private String today(){Locale es=Locale.forLanguageTag("es-MX");String d=new SimpleDateFormat("EEEE, d 'de' MMMM",es).format(new Date());return d.isEmpty()?d:d.substring(0,1).toUpperCase(es)+d.substring(1);}
     private void focusNearestTile(float x){Tile best=nearestTile(x);if(best!=null)best.requestFocus();}
     private Tile nearestTile(float x){
         Tile best=null;float d=Float.MAX_VALUE;int[] l=new int[2];
@@ -471,8 +471,8 @@ public final class MainActivity extends Activity {
         }
         public App app(String pkg){return appIndex.get(pkg);}
         public View art(String pkg){App a=appIndex.get(pkg);return a==null?null:new Art(a);}
-        public void launch(String pkg){App a=appIndex.get(pkg);if(a!=null)MainActivity.this.launch(a);else Toast.makeText(MainActivity.this,"This app is not installed.",Toast.LENGTH_SHORT).show();}
-        public void start(Intent intent){try{startActivity(intent);overridePendingTransition(0,0);}catch(RuntimeException e){Toast.makeText(MainActivity.this,"This can't be opened on this TV.",Toast.LENGTH_SHORT).show();}}
+        public void launch(String pkg){App a=appIndex.get(pkg);if(a!=null)MainActivity.this.launch(a);else Toast.makeText(MainActivity.this,"Esta app no está instalada.",Toast.LENGTH_SHORT).show();}
+        public void start(Intent intent){try{startActivity(intent);overridePendingTransition(0,0);}catch(RuntimeException e){Toast.makeText(MainActivity.this,"No se puede abrir en esta TV.",Toast.LENGTH_SHORT).show();}}
         public SharedPreferences prefs(){return prefs;}
         public Activity activity(){return MainActivity.this;}
     };
@@ -497,14 +497,14 @@ public final class MainActivity extends Activity {
         prefs.edit().putString("recent",String.join(",",list)).apply();
     }
     private String sceneDetail(String id){
-        String app=sceneApp(id),opens=app.isEmpty()?"":" · Opens "+appLabel(app);
+        String app=sceneApp(id),opens=app.isEmpty()?"":" · Abre "+appLabel(app);
         switch(id){
-            case "bright":return "Every light, full brightness"+opens;
-            case "cozy":return "Warm, low light for the evening"+opens;
-            case "movie":return "Lights down, warm glow behind the TV"+opens;
-            case "night":return "Only the bedside lamps"+opens;
-            case "away":return "Everything off while you are out"+opens;
-            default:return "Set the mood in one press"+opens;
+            case "bright":return "Todas las luces al máximo"+opens;
+            case "cozy":return "Luz cálida y tenue para la noche"+opens;
+            case "movie":return "Luces bajas, brillo cálido tras la TV"+opens;
+            case "night":return "Solo las lámparas de buró"+opens;
+            case "away":return "Todo apagado mientras no estás"+opens;
+            default:return "Crea el ambiente con un botón"+opens;
         }
     }
     private void showGreeting() {
@@ -538,11 +538,11 @@ public final class MainActivity extends Activity {
             if (intent==null) intent=getPackageManager().getLaunchIntentForPackage(app.pkg);
             if (intent==null) throw new ActivityNotFoundException();
             sound(); startActivity(intent);overridePendingTransition(0,0);remember(app.pkg);
-        } catch (RuntimeException error) { Toast.makeText(this,"Could not open this app. It may be updating.",Toast.LENGTH_SHORT).show(); discover(); }
+        } catch (RuntimeException error) { Toast.makeText(this,"No se pudo abrir esta app. Puede estar actualizándose.",Toast.LENGTH_SHORT).show(); discover(); }
     }
 
     private String sceneApp(String scene){try{JSONObject saved=new JSONObject(prefs.getString("scene_app_packages","{}"));if(saved.has(scene))return saved.optString(scene);}catch(Exception ignored){}return scene.equals("movie")?"com.netflix.ninja":"";}
-    private String appLabel(String pkg){if(pkg.isEmpty())return "None";for(App app:apps)if(app.pkg.equals(pkg))return app.label;return pkg;}
+    private String appLabel(String pkg){if(pkg.isEmpty())return "Ninguna";for(App app:apps)if(app.pkg.equals(pkg))return app.label;return pkg;}
     /* ---------- overlays: menus, notices and the wallpaper picker (no stock dialogs) ---------- */
     private View nav(){return (View)tabs.get(0).getParent().getParent();}
     private View tabIndicator;private GradientDrawable tabIndicatorShape;private ValueAnimator tabMove;private int tabColor=0x24FFFFFF;
@@ -620,7 +620,7 @@ public final class MainActivity extends Activity {
         panel.addView(text(title,22,Color.WHITE,"sans-serif-medium"),pos(392,30,24,26));
         TextView body=text(message,14,0xC7FFFFFF,"sans-serif");body.setLineSpacing(px(5),1);panel.addView(body,pos(392,140,24,66));
         LinearLayout list=new LinearLayout(this);list.setOrientation(LinearLayout.VERTICAL);panel.addView(list,pos(140,42,286,200));
-        View done=menuRow(list,"Done",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);root.post(done::requestFocus);
+        View done=menuRow(list,"Listo",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);root.post(done::requestFocus);
     }
     /** Full-screen wallpaper picker: moving between thumbnails previews each wallpaper live. */
     private void wallpaperPicker(){
@@ -630,7 +630,7 @@ public final class MainActivity extends Activity {
         content.animate().alpha(0).setDuration(240).start();nav().animate().alpha(0).setDuration(240).start();sceneryShade.animate().alpha(0).setDuration(300).start();
         View fade=new View(this);fade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x00000000,0x99000000,0xE6000000}));o.addView(fade,pos(960,260,0,280));
         TextView name=text(WALLPAPERS[saved],34,Color.WHITE,"sans-serif-medium");name.setLetterSpacing(-.02f);name.setShadowLayer(px(10),0,px(1),0x66000000);o.addView(name,pos(600,44,48,338));
-        TextView hint=text("OK to choose  ·  Back to keep the current one",13,0xB3FFFFFF,"sans-serif");o.addView(hint,pos(600,20,49,386));
+        TextView hint=text("OK para elegir  ·  Atrás para conservar el actual",13,0xB3FFFFFF,"sans-serif");o.addView(hint,pos(600,20,49,386));
         LinearLayout row=new LinearLayout(this);row.setClipChildren(false);row.setClipToPadding(false);o.addView(row,pos(864,80,48,430));
         ArrayList<View> cells=new ArrayList<>();
         for(int i=0;i<WALLPAPERS.length;i++){
@@ -669,24 +669,24 @@ public final class MainActivity extends Activity {
         FrameLayout panel=new FrameLayout(this);panel.setBackground(shape(0xF51C1C1E,24));panel.setElevation(px(24));
         FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(px(600),px(330));lp.gravity=Gravity.CENTER;o.addView(panel,lp);
         panel.addView(text("Luma TV",26,Color.WHITE,"sans-serif-medium"),pos(380,34,26,24));
-        panel.addView(text("Version "+version(),13,0x99FFFFFF,"sans-serif"),pos(380,18,27,62));
-        TextView body=text("A calm home screen for Android TV. No ads, no sponsored rows, no tracking: your settings stay on this TV. Hold OK on an app to organise your Home.",13,0xC7FFFFFF,"sans-serif");body.setLineSpacing(px(4),1);panel.addView(body,pos(380,66,27,94));
-        panel.addView(text("Made by "+about("author"),15,Color.WHITE,"sans-serif-medium"),pos(380,22,27,172));
+        panel.addView(text("Versión "+version(),13,0x99FFFFFF,"sans-serif"),pos(380,18,27,62));
+        TextView body=text("Una pantalla de inicio tranquila para Android TV. Sin anuncios, sin filas patrocinadas, sin rastreo: tus ajustes se quedan en esta TV. Mantén OK en una app para organizar tu Inicio.",13,0xC7FFFFFF,"sans-serif");body.setLineSpacing(px(4),1);panel.addView(body,pos(380,66,27,94));
+        panel.addView(text("Hecho por "+about("author"),15,Color.WHITE,"sans-serif-medium"),pos(380,22,27,172));
         String links=about("x").replaceFirst("^https?://","")+"\n"+about("github").replaceFirst("^https?://","");
         TextView link=text(links,12,0xB3FFFFFF,"sans-serif");link.setLineSpacing(px(4),1);panel.addView(link,pos(380,40,27,198));
         panel.addView(qr("qr_source"),pos(150,150,426,28));
-        TextView caption=text("Source code",12,0x99FFFFFF,"sans-serif");caption.setGravity(Gravity.CENTER);panel.addView(caption,pos(150,18,426,184));
+        TextView caption=text("Código fuente",12,0x99FFFFFF,"sans-serif");caption.setGravity(Gravity.CENTER);panel.addView(caption,pos(150,18,426,184));
         LinearLayout list=new LinearLayout(this);list.setOrientation(LinearLayout.HORIZONTAL);panel.addView(list,pos(400,42,26,262));
         LinearLayout a=new LinearLayout(this),b=new LinearLayout(this);a.setOrientation(LinearLayout.VERTICAL);b.setOrientation(LinearLayout.VERTICAL);
         list.addView(a,new LinearLayout.LayoutParams(px(200),-1));LinearLayout.LayoutParams gap=new LinearLayout.LayoutParams(px(110),-1);gap.leftMargin=px(10);list.addView(b,gap);
-        menuRow(a,"Support the author",false,this::supportScreen);View done=menuRow(b,"Done",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);
+        menuRow(a,"Apoya al autor",false,this::supportScreen);View done=menuRow(b,"Listo",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);
         root.post(done::requestFocus);
     }
     /** Crypto tips: a QR code per coin from res/raw/support.txt (drawn by tools/support-qr.sh). */
     private void supportScreen(){
         FrameLayout o=openOverlay(0xF20B0B0D);
-        TextView title=text("Support the author",30,Color.WHITE,"sans-serif-medium");title.setLetterSpacing(-.02f);o.addView(title,pos(700,40,48,38));
-        TextView body=text("Luma is free and has no ads. If it earned a place on your TV, a tip in crypto helps it grow. Scan a code with your phone's wallet, and send each coin only over the network named on its card.",13,0xC7FFFFFF,"sans-serif");
+        TextView title=text("Apoya al autor",30,Color.WHITE,"sans-serif-medium");title.setLetterSpacing(-.02f);o.addView(title,pos(700,40,48,38));
+        TextView body=text("Luma es gratis y no tiene anuncios. Si se ganó un lugar en tu TV, una propina en cripto la ayuda a crecer. Escanea un código con la wallet de tu teléfono y envía cada moneda solo por la red indicada en su tarjeta.",13,0xC7FFFFFF,"sans-serif");
         body.setLineSpacing(px(4),1);o.addView(body,pos(760,44,48,84));
         ArrayList<String[]> coins=rawLines(R.raw.support);int n=Math.max(1,Math.min(4,coins.size()));float w=(864-(n-1)*16)/(float)n;
         for(int i=0;i<Math.min(4,coins.size());i++){String[] c=coins.get(i);
@@ -697,15 +697,15 @@ public final class MainActivity extends Activity {
             TextView address=text(c.length>2?c[2]:"",10,0xD9FFFFFF,"monospace");address.setGravity(Gravity.CENTER);address.setLineSpacing(px(2),1);card.addView(address,pos(w-24,58,12,82+side));
         }
         LinearLayout list=new LinearLayout(this);list.setOrientation(LinearLayout.VERTICAL);o.addView(list,pos(140,42,410,482));
-        View done=menuRow(list,"Done",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);root.post(done::requestFocus);
+        View done=menuRow(list,"Listo",false,()->closeOverlay(false));((TextView)done).setGravity(Gravity.CENTER);root.post(done::requestFocus);
     }
     // Stock launchers that luma.sh may have switched off to let Luma be the home screen.
     static final String[] STOCK_HOMES={"com.google.android.tvlauncher","com.google.android.apps.tv.launcherx","com.google.android.leanbacklauncher"};
     private Intent homeIntent(){return new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);}
     private boolean lumaIsHome(){ResolveInfo r=getPackageManager().resolveActivity(homeIntent(),PackageManager.MATCH_DEFAULT_ONLY);return r!=null&&r.activityInfo!=null&&getPackageName().equals(r.activityInfo.packageName);}
     private void homeScreen(){
-        if(!lumaIsHome()){notice("Home screen","To make Luma your home screen, run  ./luma.sh home  on a computer with this TV on the same Wi-Fi. Some TVs also offer it in Settings → Apps → Default apps.");return;}
-        menu("Home screen",new String[]{"Keep Luma","Return to the TV's home screen"},0,choice->{if(choice==1)restoreHome();});
+        if(!lumaIsHome()){notice("Pantalla de inicio","Para que Luma sea tu pantalla de inicio, ejecuta  ./luma.sh home  en una computadora conectada al mismo Wi-Fi que esta TV. Algunas TVs también lo ofrecen en Configuración → Apps → Apps predeterminadas.");return;}
+        menu("Pantalla de inicio",new String[]{"Conservar Luma","Volver al inicio de la TV"},0,choice->{if(choice==1)restoreHome();});
     }
     /** Hands Home back to the TV's own launcher. A launcher switched off over ADB can only be switched on over ADB. */
     private void restoreHome(){
@@ -713,19 +713,19 @@ public final class MainActivity extends Activity {
         for(String pkg:STOCK_HOMES)try{int state=pm.getApplicationEnabledSetting(pkg);off|=state==PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER||state==PackageManager.COMPONENT_ENABLED_STATE_DISABLED;}catch(IllegalArgumentException notInstalled){}
         ResolveInfo other=null;
         for(ResolveInfo r:pm.queryIntentActivities(homeIntent(),0)){String pkg=r.activityInfo.packageName;if(pkg.equals(getPackageName())||pkg.equals("com.android.tv.settings")||pkg.contains("setupwraith")||pkg.contains("provision"))continue;if(other==null||r.priority>other.priority)other=r;}
-        if(off||other==null){notice("Return to the TV's home screen","Your TV's own home screen was switched off from a computer so that Luma could replace it. Only a computer can switch it back on: run  ./luma.sh restore  in the Luma folder, with this TV on the same Wi-Fi.");return;}
+        if(off||other==null){notice("Volver al inicio de la TV","La pantalla de inicio de tu TV se desactivó desde una computadora para que Luma la reemplazara. Solo una computadora puede reactivarla: ejecuta  ./luma.sh restore  en la carpeta de Luma, con esta TV en el mismo Wi-Fi.");return;}
         pm.clearPackagePreferredActivities(getPackageName());
         startActivity(homeIntent().setComponent(new ComponentName(other.activityInfo.packageName,other.activityInfo.name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
     private void sceneApps(){
-        if(!house){notice("Scene apps","Scenes come from House Control TV. Install it to control your lights from Home.");return;}
+        if(!house){notice("Apps de escenas","Las escenas vienen de House Control TV. Instálala para controlar tus luces desde Inicio.");return;}
         JSONArray scenes=lastHome==null?null:lastHome.optJSONObject("plan").optJSONArray("scenes");
-        if(scenes==null||scenes.length()==0){notice("Scene apps","Open Home once so Luma can load your scenes from House Control.");return;}
+        if(scenes==null||scenes.length()==0){notice("Apps de escenas","Abre Inicio una vez para que Luma cargue tus escenas de House Control.");return;}
         ArrayList<String> ids=new ArrayList<>(),names=new ArrayList<>();for(int i=0;i<scenes.length();i++){JSONObject scene=scenes.optJSONObject(i);ids.add(scene.optString("id"));names.add(scene.optString("name")+"   →   "+appLabel(sceneApp(scene.optString("id"))));}
-        menu("Open an app after a scene",names.toArray(new String[0]),-1,index->{
-            ArrayList<String> labels=new ArrayList<>();labels.add("None — stay on Home");int current=0;String chosen=sceneApp(ids.get(index));
+        menu("Abrir una app tras una escena",names.toArray(new String[0]),-1,index->{
+            ArrayList<String> labels=new ArrayList<>();labels.add("Ninguna: quedarse en Inicio");int current=0;String chosen=sceneApp(ids.get(index));
             for(int i=0;i<apps.size();i++){labels.add(apps.get(i).label);if(apps.get(i).pkg.equals(chosen))current=i+1;}
-            menu("After "+scenes.optJSONObject(index).optString("name"),labels.toArray(new String[0]),current,choice->{
+            menu("Después de "+scenes.optJSONObject(index).optString("name"),labels.toArray(new String[0]),current,choice->{
                 try{JSONObject saved=new JSONObject(prefs.getString("scene_app_packages","{}"));saved.put(ids.get(index),choice==0?"":apps.get(choice-1).pkg);prefs.edit().putString("scene_app_packages",saved.toString()).apply();}catch(Exception ignored){}
                 root.post(this::sceneApps);
             });
@@ -734,7 +734,7 @@ public final class MainActivity extends Activity {
     /** true when the scene opens an app: the 3D card becomes the screen and flies into the modelled TV. */
     private boolean sceneApplied(String id){
         String pkg=sceneApp(id);if(pkg.isEmpty()||sceneTransition)return false;App target=null;for(App app:apps)if(app.pkg.equals(pkg))target=app;
-        if(target==null){Toast.makeText(this,"The scene app is not installed.",Toast.LENGTH_SHORT).show();return false;}
+        if(target==null){Toast.makeText(this,"La app de la escena no está instalada.",Toast.LENGTH_SHORT).show();return false;}
         final App selected=target;if(!motion()||houseWidgets==null){launch(selected);return false;}
         sceneTransition=true;content.setTranslationZ(px(40));
         sceneVeil=new View(this);sceneVeil.setBackgroundColor(Color.BLACK);sceneVeil.setAlpha(0);sceneVeil.setFocusable(true);sceneVeil.setFocusableInTouchMode(true);sceneVeil.setOnKeyListener((v,k,e)->true);sceneVeil.setTranslationZ(px(200));root.addView(sceneVeil,new FrameLayout.LayoutParams(-1,-1));sceneVeil.requestFocus();
@@ -758,7 +758,7 @@ public final class MainActivity extends Activity {
 
     private void appMenu(App app) {
         Set<String> hidden=new HashSet<>(prefs.getStringSet("hidden",Collections.emptySet()));
-        String[] choices={"Open", "Move to first position", "Move left", "Move right", hidden.contains(app.pkg) ? "Show on Home" : "Hide from Home", "App info"};
+        String[] choices={"Abrir", "Mover al principio", "Mover a la izquierda", "Mover a la derecha", hidden.contains(app.pkg) ? "Mostrar en Inicio" : "Ocultar de Inicio", "Info de la app"};
         menu(app.label,choices,-1,index-> {
             if (index==0) { launch(app); return; }
             ArrayList<String> ids=order(); int current=ids.indexOf(app.pkg);
@@ -780,7 +780,7 @@ public final class MainActivity extends Activity {
         previewTitle.setText(title);previewBody.setText(body);
     }
     private void settings(boolean focus) {
-        TextView title=text("Settings",42,ink(0xFF),"sans-serif-medium"); title.setLetterSpacing(-.035f); shadow(title,10);
+        TextView title=text("Ajustes",42,ink(0xFF),"sans-serif-medium"); title.setLetterSpacing(-.035f); shadow(title,10);
         content.addView(title,pos(450,52,48,84));
         // The list scrolls itself (reveal): the stock ScrollView stops a focused row flush with its edge, where the
         // row's lift and shadow were cut off. Rows scroll away under a soft edge, not over the title.
@@ -800,31 +800,31 @@ public final class MainActivity extends Activity {
         content.addView(card,pos(352,330,560,150));
         int wp=wallpaperStyle();
         ArrayList<View> controls=new ArrayList<>();
-        caption(list,"Appearance",true);
-        controls.add(option(list,"Wallpaper",()->WALLPAPERS[wallpaperStyle()],null,this::wallpaperPicker,
-            ()->preview(THUMBS[wallpaperStyle()],WALLPAPERS[wallpaperStyle()],"Eight wallpapers, from silver silk to the Milky Way. Silver is light by day and dark after sunset.")));
-        controls.add(option(list,"Your name",()->{String n=prefs.getString("name","").trim();return n.isEmpty()?"Add":n;},null,this::nameEditor,
-            ()->preview(0,"Your name","Home greets you by name. It is saved only on this TV.")));
-        controls.add(option(list,"Clock",null,"clock",()->{},()->preview(0,"Clock","Shows the time in the top-right corner of every page.")));
-        caption(list,"Motion and sound",false);
-        controls.add(option(list,"Fluid motion",null,"motion",()->{},()->preview(0,"Fluid motion","Springy focus, depth and the 3D flight into your TV. Turn off for a calmer, simpler screen.")));
-        controls.add(option(list,"Living wallpaper",null,"ambient",()->wallpaper.syncAmbient(),()->preview(THUMBS[wallpaperStyle()],"Living wallpaper","Clouds drift and water moves very slowly. Pauses whenever an app is open.")));
-        controls.add(option(list,"Navigation sounds",null,"sound",()->{},()->preview(0,"Navigation sounds","A soft, quiet sound when you open an app.")));
-        caption(list,"Home",false);
+        caption(list,"Apariencia",true);
+        controls.add(option(list,"Fondo",()->WALLPAPERS[wallpaperStyle()],null,this::wallpaperPicker,
+            ()->preview(THUMBS[wallpaperStyle()],WALLPAPERS[wallpaperStyle()],"Ocho fondos, de la seda plateada a la Vía Láctea. Plata es claro de día y oscuro tras el atardecer.")));
+        controls.add(option(list,"Tu nombre",()->{String n=prefs.getString("name","").trim();return n.isEmpty()?"Agregar":n;},null,this::nameEditor,
+            ()->preview(0,"Tu nombre","Inicio te saluda por tu nombre. Solo se guarda en esta TV.")));
+        controls.add(option(list,"Reloj",null,"clock",()->{},()->preview(0,"Reloj","Muestra la hora en la esquina superior derecha de cada página.")));
+        caption(list,"Movimiento y sonido",false);
+        controls.add(option(list,"Movimiento fluido",null,"motion",()->{},()->preview(0,"Movimiento fluido","Enfoque elástico, profundidad y el vuelo 3D hacia tu TV. Apágalo para una pantalla más tranquila y simple.")));
+        controls.add(option(list,"Fondo animado",null,"ambient",()->wallpaper.syncAmbient(),()->preview(THUMBS[wallpaperStyle()],"Fondo animado","Las nubes flotan y el agua se mueve muy lento. Se pausa cuando hay una app abierta.")));
+        controls.add(option(list,"Sonido al abrir apps",null,"sound",()->{},()->preview(0,"Sonido al abrir apps","Un sonido suave y discreto al abrir una app.")));
+        caption(list,"Inicio",false);
         widgetsRow=controls.size();
-        controls.add(option(list,"Home widgets",this::widgetSummary,null,this::widgetEditor,
-            ()->preview(0,"Home widgets","Choose what Home shows above your apps — "+(house?"Smart Home, ":"")+"Up Next, Weather, "+(InputsWidget.count>0?"Inputs, ":"")+"Now Playing and Control — and their order. Left and Right turn the pages.")));
-        controls.add(option(list,"Temperature",()->new String[]{"Automatic","Celsius","Fahrenheit"}[unitIndex()],null,this::temperatureMenu,
-            ()->preview(0,"Temperature","Weather in Celsius or Fahrenheit. Automatic follows the TV's region. The forecast is for "+Daylight.city()+", the main city of the TV's time zone.")));
-        if(house)controls.add(option(list,"Scene apps",()->"Choose",null,this::sceneApps,()->preview(0,"Scene apps","Open an app after a scene — Movie can start Netflix as the lights go down.")));
-        controls.add(option(list,"Home screen",()->lumaIsHome()?"Luma":"TV default",null,this::homeScreen,
-            ()->preview(0,"Home screen",lumaIsHome()?"Luma opens when you press Home. Choose to return to your TV's own home screen.":"Your TV's own home screen opens when you press Home.")));
-        caption(list,"System",false);
-        controls.add(option(list,"Device settings",()->"",null,()->startActivity(new Intent(Settings.ACTION_SETTINGS)),()->preview(0,"Device settings","Network, picture, sound and accounts.")));
-        controls.add(option(list,"Support the author",()->"",null,this::supportScreen,()->preview(0,"Support the author","Luma is free and has no ads. A tip in crypto helps it grow.")));
-        controls.add(option(list,"About Luma",()->"",null,this::aboutScreen,()->preview(0,"About Luma","Version "+version()+" · made by "+about("author"))));
+        controls.add(option(list,"Widgets de Inicio",this::widgetSummary,null,this::widgetEditor,
+            ()->preview(0,"Widgets de Inicio","Elige qué muestra Inicio sobre tus apps — "+(house?"Casa inteligente, ":"")+"A continuación, Clima, "+(InputsWidget.count>0?"Entradas, ":"")+"Reproduciendo y Control — y su orden. Izquierda y Derecha cambian de página.")));
+        controls.add(option(list,"Temperatura",()->new String[]{"Automática","Celsius","Fahrenheit"}[unitIndex()],null,this::temperatureMenu,
+            ()->preview(0,"Temperatura","El clima en Celsius o Fahrenheit. Automática sigue la región de la TV. El pronóstico es para "+Daylight.city()+", la ciudad principal de la zona horaria de la TV.")));
+        if(house)controls.add(option(list,"Apps de escenas",()->"Elegir",null,this::sceneApps,()->preview(0,"Apps de escenas","Open an app after a scene — Movie can start Netflix as the lights go down.")));
+        controls.add(option(list,"Pantalla de inicio",()->lumaIsHome()?"Luma":"De la TV",null,this::homeScreen,
+            ()->preview(0,"Pantalla de inicio",lumaIsHome()?"Luma se abre al presionar Inicio. Elige para volver a la pantalla de inicio de tu TV.":"La pantalla de inicio de tu TV se abre al presionar Inicio.")));
+        caption(list,"Sistema",false);
+        controls.add(option(list,"Ajustes del dispositivo",()->"",null,()->startActivity(new Intent(Settings.ACTION_SETTINGS)),()->preview(0,"Ajustes del dispositivo","Red, imagen, sonido y cuentas.")));
+        controls.add(option(list,"Apoya al autor",()->"",null,this::supportScreen,()->preview(0,"Apoya al autor","Luma es gratis y sin anuncios. Una propina en cripto la ayuda a crecer.")));
+        controls.add(option(list,"Acerca de Luma",()->"",null,this::aboutScreen,()->preview(0,"Acerca de Luma","Versión "+version()+" · hecho por "+about("author"))));
         content.setTag(controls);
-        preview(THUMBS[wp],WALLPAPERS[wp],"Eight wallpapers, from silver silk to the Milky Way. Silver is light by day and dark after sunset.");
+        preview(THUMBS[wp],WALLPAPERS[wp],"Ocho fondos, de la seda plateada a la Vía Láctea. Plata es claro de día y oscuro tras el atardecer.");
         if (focus) root.post(()->controls.get(0).requestFocus());
     }
     private void caption(LinearLayout list,String label,boolean first){
@@ -848,10 +848,10 @@ public final class MainActivity extends Activity {
         settingsGlide=ValueAnimator.ofInt(y,target);settingsGlide.setDuration(420);settingsGlide.setInterpolator(ease);
         settingsGlide.addUpdateListener(a->sv.scrollTo(0,(int)a.getAnimatedValue()));settingsGlide.start();
     }
-    private String widgetSummary(){boolean inputs=!InputsWidget.list(this).isEmpty();int n=0;for(String id:WidgetBoard.IDS)if(WidgetBoard.on(prefs,id)&&(house||!id.equals("house"))&&(inputs||!id.equals("inputs")))n++;return n==0?"Off":n+" on";}
+    private String widgetSummary(){boolean inputs=!InputsWidget.list(this).isEmpty();int n=0;for(String id:WidgetBoard.IDS)if(WidgetBoard.on(prefs,id)&&(house||!id.equals("house"))&&(inputs||!id.equals("inputs")))n++;return n==0?"Desactivados":n==1?"1 activo":n+" activos";}
     private int unitIndex(){String u=prefs.getString("temp_unit","auto");return u.equals("c")?1:u.equals("f")?2:0;}
     private void temperatureMenu(){
-        menu("Temperature",new String[]{"Automatic","Celsius","Fahrenheit"},unitIndex(),choice->{
+        menu("Temperatura",new String[]{"Automática","Celsius","Fahrenheit"},unitIndex(),choice->{
             prefs.edit().putString("temp_unit",new String[]{"auto","c","f"}[choice]).apply();showPage("settings",false);controlsFocus(widgetsRow+1);});
     }
     private void widgetEditor(){new WidgetEditor();}
@@ -872,7 +872,7 @@ public final class MainActivity extends Activity {
             FrameLayout panel=new FrameLayout(MainActivity.this);panel.setBackground(shape(0xF51C1C1E,26));panel.setElevation(px(24));panel.setClipChildren(false);
             float h=Math.max(440,98+order.size()*61+20); // grows with the number of widgets
             FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(px(760),px(h));lp.gravity=Gravity.CENTER;o.addView(panel,lp);
-            panel.addView(text("Home widgets",24,Color.WHITE,"sans-serif-medium"),pos(420,32,28,26));
+            panel.addView(text("Widgets de Inicio",24,Color.WHITE,"sans-serif-medium"),pos(420,32,28,26));
             hint=text("",13,0xB3FFFFFF,"sans-serif");hint.setSingleLine(true);panel.addView(hint,pos(420,18,29,64));setHint();
             list.setOrientation(LinearLayout.VERTICAL);list.setClipChildren(false);list.setClipToPadding(false);list.setPadding(px(8),0,px(8),0);
             panel.addView(list,pos(436,order.size()*61,20,98));
@@ -885,7 +885,7 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams rowParams(){LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,px(54));p.bottomMargin=px(7);return p;}
         final boolean inputs=!InputsWidget.list(MainActivity.this).isEmpty();
         boolean available(String id){return id.equals("house")?house:id.equals("inputs")?inputs:true;}
-        void setHint(){hint.setText(moving!=null?"Up and Down move it. OK puts it down.":"OK turns a widget on or off. Hold OK to move it.");}
+        void setHint(){hint.setText(moving!=null?"Arriba y Abajo lo mueven. OK lo suelta.":"OK activa o desactiva un widget. Mantén OK para moverlo.");}
         GradientDrawable oval(int color){GradientDrawable d=new GradientDrawable();d.setShape(GradientDrawable.OVAL);d.setColor(color);return d;}
         View row(String id){
             FrameLayout row=new FrameLayout(MainActivity.this);row.setFocusable(true);row.setFocusableInTouchMode(true);row.setSoundEffectsEnabled(false);row.setClipChildren(false);
@@ -893,7 +893,7 @@ public final class MainActivity extends Activity {
             View disc=new View(MainActivity.this);row.addView(disc,pos(32,32,12,11));
             Glyph glyph=new Glyph(MainActivity.this).kind(WidgetBoard.glyph(id));row.addView(glyph,pos(18,18,19,18));
             TextView name=text(WidgetBoard.title(id),15,Color.WHITE,"sans-serif-medium");row.addView(name,pos(280,19,56,9));
-            TextView about=text(available(id)?WidgetBoard.about(id):id.equals("inputs")?"Only on TVs: a TV stick has no HDMI inputs.":"Install House Control TV to add your home.",11.5f,0x99FFFFFF,"sans-serif");
+            TextView about=text(available(id)?WidgetBoard.about(id):id.equals("inputs")?"Solo en TVs: un TV stick no tiene entradas HDMI.":"Instala House Control TV para agregar tu casa.",11.5f,0x99FFFFFF,"sans-serif");
             about.setSingleLine(true);about.setEllipsize(android.text.TextUtils.TruncateAt.END);row.addView(about,pos(288,15,56,31));
             View track=new View(MainActivity.this),knob=new View(MainActivity.this);row.addView(track,pos(40,24,368,15));row.addView(knob,pos(20,20,370,17));
             TextView grip=text("≡",22,0xFF111827,"sans-serif-medium");grip.setGravity(Gravity.CENTER);grip.setAlpha(0);row.addView(grip,pos(40,24,368,13));
@@ -945,9 +945,9 @@ public final class MainActivity extends Activity {
         /** Miniature Home pages: the greeting, the widgets of each page, and the apps that stay underneath. */
         void drawPages(){
             pages.removeAllViews();
-            pages.addView(text("Your Home",13,0x99FFFFFF,"sans-serif-medium"),pos(240,16,2,0));
+            pages.addView(text("Tu Inicio",13,0x99FFFFFF,"sans-serif-medium"),pos(240,16,2,0));
             ArrayList<ArrayList<String>> layout=WidgetBoard.pages(prefs,house,inputs);
-            if(layout.isEmpty()){TextView t=text("Only the greeting and your apps.",12.5f,0x80FFFFFF,"sans-serif");pages.addView(t,pos(250,18,2,30));return;}
+            if(layout.isEmpty()){TextView t=text("Solo el saludo y tus apps.",12.5f,0x80FFFFFF,"sans-serif");pages.addView(t,pos(250,18,2,30));return;}
             float mw=122,mh=69,k=(mw-16)/WidgetBoard.ROW_W;
             for(int p=0;p<Math.min(6,layout.size());p++){
                 float x=(p%2)*(mw+14),y=28+(p/2)*(mh+30);
@@ -1014,7 +1014,7 @@ public final class MainActivity extends Activity {
         Tile(App item,int number) {
             super(MainActivity.this);app=item;index=number;
             setClipChildren(false);setClipToPadding(false);setFocusable(true);setFocusableInTouchMode(true);setSoundEffectsEnabled(false);
-            setContentDescription(app.label+". OK: open. Hold OK: organize app.");
+            setContentDescription(app.label+". OK: abrir. Mantén OK: organizar app.");
             face=new FrameLayout(MainActivity.this);GradientDrawable faceBg=shape(app.color,16);faceBg.setStroke(Math.max(1,px(.6f)),0x1FFFFFFF);face.setBackground(faceBg);face.setClipToOutline(true);face.setElevation(px(2));face.setCameraDistance(px(900));
             art=new Art(app);face.addView(art,new FrameLayout.LayoutParams(-1,-1));
             light=new Shine();light.setAlpha(0);face.addView(light,new FrameLayout.LayoutParams(-1,-1));
@@ -1346,7 +1346,7 @@ public final class MainActivity extends Activity {
             }
         }
     }
-    static final String[] WALLPAPERS={"Fjord","Dusk","Graphite","Milky Way","Calm Sea","Dawn","Silk","Silver"};
+    static final String[] WALLPAPERS={"Fiordo","Crepúsculo","Grafito","Vía Láctea","Mar en calma","Amanecer","Seda","Plata"};
     /** Silver is one choice with two pictures: SILVER by day, SILVER_NIGHT after sunset (see variant()). */
     static final int SILVER=7,SILVER_NIGHT=8;
     static final int[] PHOTOS={R.drawable.wp_milkyway,R.drawable.wp_sea,R.drawable.wp_dawn,R.drawable.wp_silk,R.drawable.wp_silver_day,R.drawable.wp_silver_night};
@@ -1364,23 +1364,23 @@ public final class MainActivity extends Activity {
         return 0xFF293341;
     }
     private String tagFor(String pkg) {
-        if(pkg.contains("youtube.tv"))return "WATCH YOUR WAY";
-        if(pkg.contains("netflix"))return "TIME FOR A GREAT STORY";
-        if(pkg.contains("soundcloud")||pkg.contains("tvmusic"))return "THE SOUND OF YOUR EVENING";
-        if(pkg.contains("ted.android"))return "IDEAS WORTH EXPLORING";
-        if(pkg.contains("phlox"))return "A WINDOW TO YOUR WORLD";
-        return "YOUR SPACE";
+        if(pkg.contains("youtube.tv"))return "MIRA A TU MANERA";
+        if(pkg.contains("netflix"))return "HORA DE UNA GRAN HISTORIA";
+        if(pkg.contains("soundcloud")||pkg.contains("tvmusic"))return "EL SONIDO DE TU NOCHE";
+        if(pkg.contains("ted.android"))return "IDEAS PARA EXPLORAR";
+        if(pkg.contains("phlox"))return "UNA VENTANA A TU MUNDO";
+        return "TU ESPACIO";
     }
     private String descriptionFor(String pkg) {
-        if(pkg.contains("youtube.tv"))return "Favorite creators. New discoveries. A bigger screen.";
-        if(pkg.contains("netflix"))return "Great stories. Even better evenings.";
-        if(pkg.contains("soundcloud"))return "Find your sound. Set the mood.";
-        if(pkg.contains("tvmusic"))return "The artists you love. The mood you are in.";
-        if(pkg.contains("ted.android"))return "A new perspective can change everything.";
-        if(pkg.contains("phlox"))return "The web, from the comfort of your sofa.";
-        if(pkg.contains("disney"))return "Stories for every age, all in one place.";
-        if(pkg.contains("spotify"))return "Your music and podcasts, on the big speakers.";
-        if(pkg.contains("amazon"))return "Movies and series for your next great evening.";
-        return "Your apps. Always within reach.";
+        if(pkg.contains("youtube.tv"))return "Tus creadores favoritos. Nuevos descubrimientos. Una pantalla más grande.";
+        if(pkg.contains("netflix"))return "Grandes historias. Noches aún mejores.";
+        if(pkg.contains("soundcloud"))return "Encuentra tu sonido. Crea el ambiente.";
+        if(pkg.contains("tvmusic"))return "Los artistas que amas. El ánimo en que estás.";
+        if(pkg.contains("ted.android"))return "Una nueva perspectiva puede cambiarlo todo.";
+        if(pkg.contains("phlox"))return "La web, desde la comodidad de tu sillón.";
+        if(pkg.contains("disney"))return "Historias para todas las edades, en un solo lugar.";
+        if(pkg.contains("spotify"))return "Tu música y podcasts, en las bocinas grandes.";
+        if(pkg.contains("amazon"))return "Películas y series para tu próxima gran noche.";
+        return "Tus apps. Siempre a tu alcance.";
     }
 }

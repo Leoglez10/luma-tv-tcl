@@ -19,8 +19,8 @@ pick_device() {
         return
     fi
     local list; list="$(adb devices | awk 'NR>1 && $2=="device" {print $1}')"
-    [ -n "$list" ] || die "no TV found. Turn on ADB debugging on the TV, then: adb connect <TV IP>:5555"
-    [ "$(echo "$list" | wc -l | tr -d ' ')" = "1" ] || die "several devices connected; choose one with -s DEVICE:
+    [ -n "$list" ] || die "no se encontró ninguna TV. Activa la depuración ADB en la TV y luego: adb connect <IP de la TV>:5555"
+    [ "$(echo "$list" | wc -l | tr -d ' ')" = "1" ] || die "hay varios dispositivos conectados; elige uno con -s DISPOSITIVO:
 $list"
     DEVICE="$list"
 }
@@ -39,7 +39,7 @@ install)
     adb -s "$DEVICE" install --no-incremental -r dist/luma-tv.apk ;;
 home)
     pick_device
-    installed dev.luma.tv || die "Luma is not installed yet: ./luma.sh install"
+    installed dev.luma.tv || die "Luma aún no está instalada: ./luma.sh install"
     state="$(state_file)"
     if [ ! -s "$state" ]; then echo "original=$(home_now)" > "$state"; fi
     tv cmd package set-home-activity --user 0 "$LUMA" >/dev/null
@@ -49,24 +49,24 @@ home)
         pkg="${current%%/*}"
         case " $KNOWN " in
         *" $pkg "*)
-            echo "Switching off $pkg, which the TV puts above any other home screen."
+            echo "Desactivando $pkg, que la TV pone por encima de cualquier otra pantalla de inicio."
             tv pm disable-user --user 0 "$pkg" >/dev/null
             echo "disabled=$pkg" >> "$state"
             tv cmd package set-home-activity --user 0 "$LUMA" >/dev/null ;;
-        *) die "the TV still opens $current at Home, and luma.sh does not switch off unknown apps. Nothing else was changed; ./luma.sh restore undoes this." ;;
+        *) die "la TV sigue abriendo $current en Inicio, y luma.sh no desactiva apps desconocidas. No se cambió nada más; ./luma.sh restore lo deshace." ;;
         esac
     done
-    [ "$(home_now)" = "$LUMA" ] || die "the TV did not accept Luma as its home screen. ./luma.sh restore undoes the changes."
+    [ "$(home_now)" = "$LUMA" ] || die "la TV no aceptó Luma como pantalla de inicio. ./luma.sh restore deshace los cambios."
     show_home
-    echo "Luma is the home screen. Undo at any time: ./luma.sh restore" ;;
+    echo "Luma es la pantalla de inicio. Para deshacerlo en cualquier momento: ./luma.sh restore" ;;
 widgets)
     # The Home widgets work without this; it switches on what a TV remote makes tedious to allow by hand.
     pick_device
-    installed dev.luma.tv || die "Luma is not installed yet: ./luma.sh install"
-    tv pm grant dev.luma.tv android.permission.READ_TV_LISTINGS && echo "Up Next: Continue watching from your apps."
-    tv cmd notification allow_listener dev.luma.tv/dev.luma.tv.MediaListener && echo "Now Playing: music playing on the TV."
-    tv appops set dev.luma.tv GET_USAGE_STATS allow && echo "Up Next: recently used apps."
-    echo "Undo any of these in the TV's Settings → Apps → Special app access, or Settings → Apps → Luma TV → Permissions." ;;
+    installed dev.luma.tv || die "Luma aún no está instalada: ./luma.sh install"
+    tv pm grant dev.luma.tv android.permission.READ_TV_LISTINGS && echo "A continuación: Seguir viendo de tus apps."
+    tv cmd notification allow_listener dev.luma.tv/dev.luma.tv.MediaListener && echo "Reproduciendo: la música que suena en la TV."
+    tv appops set dev.luma.tv GET_USAGE_STATS allow && echo "A continuación: apps usadas recientemente."
+    echo "Puedes deshacer cualquiera en la TV: Ajustes → Apps → Acceso especial de apps, o Ajustes → Apps → Luma TV → Permisos." ;;
 restore)
     pick_device
     state="$(state_file)"
@@ -76,18 +76,18 @@ restore)
         disabled=""; original=""
         for pkg in $KNOWN; do installed "$pkg" && tv pm list packages -d "$pkg" | grep -qx "package:$pkg" && disabled="$disabled $pkg"; done
     fi
-    for pkg in $disabled; do echo "Switching $pkg back on."; tv pm enable --user 0 "$pkg" >/dev/null || true; done
+    for pkg in $disabled; do echo "Reactivando $pkg."; tv pm enable --user 0 "$pkg" >/dev/null || true; done
     if [ -n "$original" ] && [ "$original" != "$LUMA" ] && [[ "$original" =~ ^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$ ]]; then
         tv cmd package set-home-activity --user 0 "$original" >/dev/null || true
     fi
     rm -f "$state"
     show_home
-    echo "Home now opens $(home_now). Luma stays installed (adb uninstall dev.luma.tv removes it)." ;;
+    echo "Inicio ahora abre $(home_now). Luma sigue instalada (adb uninstall dev.luma.tv la elimina)." ;;
 status)
     pick_device
-    echo "TV:   $(tv getprop ro.product.manufacturer) $(tv getprop ro.product.model), Android $(tv getprop ro.build.version.release)"
-    echo "Luma: $(tv dumpsys package dev.luma.tv | sed -n 's/^ *versionName=//p' | head -n 1 | grep . || echo 'not installed')"
-    echo "Home: $(home_now)" ;;
+    echo "TV:     $(tv getprop ro.product.manufacturer) $(tv getprop ro.product.model), Android $(tv getprop ro.build.version.release)"
+    echo "Luma:   $(tv dumpsys package dev.luma.tv | sed -n 's/^ *versionName=//p' | head -n 1 | grep . || echo 'no instalada')"
+    echo "Inicio: $(home_now)" ;;
 *)
-    die "unknown command '$ACTION'. Use build, install, home, widgets, restore or status." ;;
+    die "comando desconocido '$ACTION'. Usa build, install, home, widgets, restore o status." ;;
 esac

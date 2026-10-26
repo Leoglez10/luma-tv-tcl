@@ -75,7 +75,7 @@ final class WeatherWidget extends Widget {
     void load(boolean force){
         long at=host.prefs().getLong("weather_at",0);
         if(loading||!force&&data!=null&&System.currentTimeMillis()-at<FRESH)return;
-        final double[] place=place();if(place==null){showError("Set the TV's time zone to see the weather");return;}
+        final double[] place=place();if(place==null){showError("Configura la zona horaria de la TV para ver el clima");return;}
         loading=true;final boolean f=fahrenheit(host.prefs());final String key=key();
         WidgetBoard.IO.execute(()->{
             JSONObject result=null;
@@ -90,10 +90,10 @@ final class WeatherWidget extends Widget {
             final JSONObject done=result;
             post(()->{loading=false;
                 if(done!=null){host.prefs().edit().putString("weather_json",done.toString()).putLong("weather_at",System.currentTimeMillis()).putString("weather_key",key).apply();data=done;fill();if(focused)heroNow();}
-                else if(data==null)showError("Weather is unavailable right now");});
+                else if(data==null)showError("El clima no está disponible por ahora");});
         });
     }
-    private void placeholder(){temp.setText("—");condition.setText("Loading…");range.setText("");slots.removeAllViews();}
+    private void placeholder(){temp.setText("—");condition.setText("Cargando…");range.setText("");slots.removeAllViews();}
     private void showError(String message){temp.setText("—");condition.setText("");range.setText("");slots.removeAllViews();error.setText(message);error.setVisibility(VISIBLE);}
     private String deg(double v){return Math.round(v)+"°";}
     private void fill(){
@@ -102,9 +102,9 @@ final class WeatherWidget extends Widget {
             JSONObject now=data.getJSONObject("current"),day=data.getJSONObject("daily");
             int code=now.optInt("weather_code");
             temp.setText(deg(now.getDouble("temperature_2m")));glyph.kind(Glyph.weather(code,now.optInt("is_day",1)==1));condition.setText(Glyph.weatherName(code));
-            range.setText("H:"+deg(day.getJSONArray("temperature_2m_max").getDouble(0))+"   L:"+deg(day.getJSONArray("temperature_2m_min").getDouble(0)));
+            range.setText("Máx:"+deg(day.getJSONArray("temperature_2m_max").getDouble(0))+"   Mín:"+deg(day.getJSONArray("temperature_2m_min").getDouble(0)));
             fillSlots(false);
-        }catch(JSONException e){showError("Weather is unavailable right now");}
+        }catch(JSONException e){showError("El clima no está disponible por ahora");}
     }
     /** Five columns: the next hours (Now first), or the coming days (Today first). */
     private void fillSlots(boolean animate){
@@ -113,10 +113,10 @@ final class WeatherWidget extends Widget {
             slots.removeAllViews();
             try{
                 JSONObject series=data.getJSONObject(daily?"daily":"hourly");JSONArray times=series.getJSONArray("time"),codes=series.getJSONArray("weather_code");
-                SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd",Locale.US),dayName=new SimpleDateFormat("EEE",Locale.ENGLISH);
+                SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd",Locale.US),dayName=new SimpleDateFormat("EEE",Locale.forLanguageTag("es-MX"));
                 for(int i=0;i<Math.min(5,times.length());i++){
                     LinearLayout col=new LinearLayout(getContext());col.setOrientation(LinearLayout.VERTICAL);col.setGravity(Gravity.CENTER_HORIZONTAL);
-                    String t=times.getString(i),label=daily?(i==0?"Today":dayName.format(in.parse(t))):(i==0?"Now":t.substring(11,13));
+                    String t=times.getString(i),label=daily?(i==0?"Hoy":day(dayName.format(in.parse(t)))):(i==0?"Ahora":t.substring(11,13));
                     TextView l=text(label,11,ink(0x99),"sans-serif-medium");l.setGravity(Gravity.CENTER);col.addView(l,new LinearLayout.LayoutParams(-1,px(14)));
                     boolean isDay=daily||series.optJSONArray("is_day")==null||series.getJSONArray("is_day").optInt(i,1)==1;
                     Glyph g=new Glyph(getContext()).kind(Glyph.weather(codes.optInt(i),isDay)).color(ink(0xE6));LinearLayout.LayoutParams gp=new LinearLayout.LayoutParams(px(19),px(19));gp.topMargin=px(5);gp.bottomMargin=px(5);col.addView(g,gp);
@@ -132,11 +132,13 @@ final class WeatherWidget extends Widget {
         if(!animate||!motion()){build.run();return;}
         slots.animate().cancel();slots.animate().alpha(0).translationY(px(3)).setDuration(110).withEndAction(()->{build.run();slots.setTranslationY(-px(3));slots.animate().alpha(1).translationY(0).setDuration(300).setInterpolator(ease).start();}).start();
     }
+    /** "lun." → "Lun": a day name shown alone. */
+    private static String day(String s){s=s.replace(".","");return s.isEmpty()?s:Character.toUpperCase(s.charAt(0))+s.substring(1);}
     private void heroNow(){
-        if(data==null){host.hero("weather",city(),error.getVisibility()==VISIBLE?error.getText()+". OK tries again.":"Loading the forecast…");return;}
+        if(data==null){host.hero("weather",city(),error.getVisibility()==VISIBLE?error.getText()+". OK vuelve a intentarlo.":"Cargando el pronóstico…");return;}
         try{JSONObject now=data.getJSONObject("current"),day=data.getJSONObject("daily");
             String title=city()+"  "+deg(now.getDouble("temperature_2m"));
-            String detail=Glyph.weatherName(now.optInt("weather_code"))+". High "+deg(day.getJSONArray("temperature_2m_max").getDouble(0))+", low "+deg(day.getJSONArray("temperature_2m_min").getDouble(0))+" · OK shows "+(daily?"the next hours":"the next days");
+            String detail=Glyph.weatherName(now.optInt("weather_code"))+". Máxima "+deg(day.getJSONArray("temperature_2m_max").getDouble(0))+", mínima "+deg(day.getJSONArray("temperature_2m_min").getDouble(0))+" · OK muestra "+(daily?"las próximas horas":"los próximos días");
             host.hero("weather:"+daily,title,detail);
         }catch(JSONException ignored){}
     }

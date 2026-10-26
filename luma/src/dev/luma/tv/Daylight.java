@@ -18,8 +18,17 @@ final class Daylight {
     }
     /** The time zone's main city: {latitude, longitude}, or null for an unknown zone. */
     static double[] place(Context context){return lookup(context,TimeZone.getDefault().getID());}
-    /** "Europe/Paris" → "Paris", "America/New_York" → "New York". */
-    static String city(){String id=TimeZone.getDefault().getID();return id.substring(id.lastIndexOf('/')+1).replace('_',' ');}
+    /** "Europe/Paris" → "París", "America/Mexico_City" → "Ciudad de México", else "America/La_Paz" → "La Paz". */
+    static String city(){String id=TimeZone.getDefault().getID();for(int i=0;i<ES.length;i+=2)if(ES[i].equals(id))return ES[i+1];return id.substring(id.lastIndexOf('/')+1).replace('_',' ');}
+    /** Spanish names of zone cities whose ID spelling differs (zone ID, name, ...). */
+    private static final String[] ES={"America/Mexico_City","Ciudad de México","America/Cancun","Cancún","America/Merida","Mérida","America/Mazatlan","Mazatlán",
+        "America/Bahia_Banderas","Bahía de Banderas","America/Ciudad_Juarez","Ciudad Juárez","America/New_York","Nueva York","America/Los_Angeles","Los Ángeles",
+        "America/Bogota","Bogotá","America/Panama","Panamá","America/Havana","La Habana","America/Asuncion","Asunción","America/Sao_Paulo","São Paulo",
+        "America/Argentina/Buenos_Aires","Buenos Aires","America/Montreal","Montreal","Europe/London","Londres","Europe/Paris","París","Europe/Berlin","Berlín",
+        "Europe/Rome","Roma","Europe/Lisbon","Lisboa","Europe/Athens","Atenas","Europe/Moscow","Moscú","Europe/Brussels","Bruselas","Europe/Amsterdam","Ámsterdam",
+        "Europe/Vienna","Viena","Europe/Zurich","Zúrich","Europe/Stockholm","Estocolmo","Europe/Copenhagen","Copenhague","Europe/Warsaw","Varsovia",
+        "Europe/Prague","Praga","Europe/Istanbul","Estambul","Atlantic/Canary","Canarias","Asia/Tokyo","Tokio","Asia/Shanghai","Shanghái","Asia/Singapore","Singapur",
+        "Asia/Seoul","Seúl","Asia/Dubai","Dubái"};
     private static double[] lookup(Context context,String id){
         int res=context.getResources().getIdentifier("zones","raw",context.getPackageName());if(res==0)return null;
         try(BufferedReader r=new BufferedReader(new InputStreamReader(context.getResources().openRawResource(res),StandardCharsets.UTF_8))){

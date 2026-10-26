@@ -9,9 +9,9 @@ export JAVA_HOME="$JDK"
 export PATH="$JDK/bin:$PATH"
 mkdir -p build/classes build/dex dist
 rm -rf build/resources.zip build/resources.apk build/unsigned.apk build/overlay build/overlay.zip
-# The Home greeting: LUMA_GREETING, else the first line of .local/greeting.txt, else "Hello".
+# The Home greeting: LUMA_GREETING, else the first line of .local/greeting.txt, else "Hola".
 GREETING="${LUMA_GREETING:-$(head -n 1 .local/greeting.txt 2>/dev/null || true)}"
-GREETING="${GREETING:-Hello}"
+GREETING="${GREETING:-Hola}"
 mkdir -p build/overlay/values
 python3 - "$GREETING" > build/overlay/values/greeting.xml <<'PY'
 import sys, html

@@ -37,7 +37,7 @@ final class InputsWidget extends Widget {
             if(!passthrough&&!tuner)continue;
             TvInputInfo shown=passthrough&&child.containsKey(info.getId())?child.get(info.getId()):info;
             Input in=new Input();in.id=shown.getId();in.tuner=tuner;in.cec=shown!=info;in.vendor=info.getServiceInfo().packageName;
-            in.name=label(shown,context);if(tuner&&(in.name.isEmpty()||in.name.matches("(?i)tv|tuner|antenna|atv|dtv")))in.name="Live TV";
+            in.name=label(shown,context);if(tuner&&(in.name.isEmpty()||in.name.matches("(?i)tv|tuner|antenna|atv|dtv")))in.name="TV en vivo";
             try{in.state=manager.getInputState(shown.getId());}catch(RuntimeException e){in.state=TvInputManager.INPUT_STATE_CONNECTED;}
             if(tuner)in.glyph="antenna";
             else if(in.cec){int[] cec=cec(shown);Devices.Device d=Devices.identify(in.name,cec[0],cec[1]);in.port=label(info,context);in.name=d.name;in.glyph=d.glyph;in.color=d.color;}
@@ -62,7 +62,7 @@ final class InputsWidget extends Widget {
         String[][] made={{"PS5","1","0"},{"Xbox Series X","2","1"},{"Apple TV","3","1"}};
         for(String[] m:made){Devices.Device d=Devices.identify(m[0],-1,Devices.PLAYBACK);Input in=new Input();in.id="promo:"+m[1];in.port="HDMI "+m[1];in.cec=true;in.made=true;
             in.name=d.name;in.glyph=d.glyph;in.color=d.color;in.state=Integer.parseInt(m[2]);out.add(in);}
-        Input tv=new Input();tv.id="promo:tv";tv.tuner=true;tv.made=true;tv.name="Live TV";tv.glyph="antenna";out.add(tv);
+        Input tv=new Input();tv.id="promo:tv";tv.tuner=true;tv.made=true;tv.name="TV en vivo";tv.glyph="antenna";out.add(tv);
     }
     private static void pretend(ArrayList<Input> out){
         String[][] made={{"PS5","0"},{"Xbox Series X","1"},{"NintendoSwitch","0"}};int i=0;
@@ -110,9 +110,9 @@ final class InputsWidget extends Widget {
     private void paintStates(){
         for(int i=0;i<tiles.size();i++){
             Input in=inputs.get(i);Tile t=tiles.get(i);
-            String state=in.tuner?"Antenna and cable channels":in.state==TvInputManager.INPUT_STATE_CONNECTED?(in.cec?"On":"Connected"):in.state==TvInputManager.INPUT_STATE_CONNECTED_STANDBY?"Standby":"Nothing connected";
+            String state=in.tuner?"Canales de antena y cable":in.state==TvInputManager.INPUT_STATE_CONNECTED?(in.cec?"Encendido":"Conectado"):in.state==TvInputManager.INPUT_STATE_CONNECTED_STANDBY?"En espera":"Nada conectado";
             if(in.cec)state=in.port+" · "+state;
-            String hero=state+" · OK switches to "+(in.cec?"it":in.name);
+            String hero=state+" · OK cambia a "+(in.cec?"este dispositivo":in.name);
             t.set(state,hero,!in.tuner&&in.state==TvInputManager.INPUT_STATE_CONNECTED);
         }
     }

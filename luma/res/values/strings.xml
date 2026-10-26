@@ -1,4 +1,4 @@
 <resources>
     <!-- Replaced at build time by LUMA_GREETING or .local/greeting.txt (build.sh). -->
-    <string name="greeting">Hello</string>
+    <string name="greeting">Hola</string>
 </resources>

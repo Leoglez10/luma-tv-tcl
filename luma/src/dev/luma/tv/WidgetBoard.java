@@ -33,15 +33,15 @@ final class WidgetBoard extends FrameLayout {
         void launch(String pkg);void start(Intent intent);
         SharedPreferences prefs();Activity activity();
     }
-    static String title(String id){switch(id){case "house":return "Smart Home";case "inputs":return "Inputs";case "upnext":return "Up Next";case "weather":return "Weather";case "music":return "Now Playing";default:return "Control";}}
+    static String title(String id){switch(id){case "house":return "Casa inteligente";case "inputs":return "Entradas";case "upnext":return "A continuación";case "weather":return "Clima";case "music":return "Reproduciendo";default:return "Control";}}
     static String glyph(String id){switch(id){case "house":return "home";case "inputs":return "hdmi";case "upnext":return "tv";case "weather":return "partly";case "music":return "note";default:return "gear";}}
     static String about(String id){switch(id){
-        case "house":return "Scenes and your live 3D home, from House Control TV.";
-        case "upnext":return "Pick up shows and videos where you left off, and your recent apps.";
-        case "weather":return "Now, the next hours and the coming days where you are.";
-        case "music":return "What's playing on this TV, with play, pause and skip.";
-        case "inputs":return "Your HDMI devices and live TV: switch to a console or a set-top box in one press.";
-        default:return "Wi-Fi, picture and sound, accessories and settings in one place.";}}
+        case "house":return "Escenas y tu casa en 3D en vivo, desde House Control TV.";
+        case "upnext":return "Retoma series y videos donde los dejaste, y tus apps recientes.";
+        case "weather":return "Ahora, las próximas horas y los próximos días donde estás.";
+        case "music":return "Lo que suena en esta TV, con reproducir, pausar y saltar.";
+        case "inputs":return "Tus dispositivos HDMI y la TV en vivo: cambia a una consola o un decodificador con un solo botón.";
+        default:return "Wi-Fi, imagen y sonido, accesorios y configuración en un solo lugar.";}}
     static float width(String id){switch(id){case "upnext":return 560;case "weather":return 288;case "inputs":return InputsWidget.widthFor(InputsWidget.count);default:return 424;}}
 
     /** All widgets in the saved order, and which of them are on. A widget added in a later version goes in after

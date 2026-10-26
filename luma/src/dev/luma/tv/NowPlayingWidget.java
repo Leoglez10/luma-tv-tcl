@@ -68,7 +68,7 @@ final class NowPlayingWidget extends Widget {
         play=button("play",42,TX+38,CTRL_Y,1,()->{if(Promo.on){Promo.toggle();render();return;}if(controller==null)return;if(playing())controller.getTransportControls().pause();else controller.getTransportControls().play();});
         next=button("next",34,TX+88,CTRL_Y+4,2,()->{if(controller!=null)controller.getTransportControls().skipToNext();});
         playGlyph=(Glyph)play.getChildAt(1);
-        openPill=pill("Open",3,()->{if(controller!=null)host.launch(controller.getPackageName());});
+        openPill=pill("Abrir",3,()->{if(controller!=null)host.launch(controller.getPackageName());});
         // Right-aligned by layout, not by translation: focus search goes by layout position.
         LayoutParams op=new LayoutParams(-2,px(32));op.gravity=Gravity.TOP|Gravity.RIGHT;op.rightMargin=px(PAD);op.topMargin=px(CTRL_Y+5);addView(openPill,op);
         shortcuts=new LinearLayout(context);shortcuts.setClipChildren(false);shortcuts.setClipToPadding(false);addView(shortcuts,pos(tw+10,34,TX-4,CTRL_Y+4));
@@ -133,13 +133,13 @@ final class NowPlayingWidget extends Widget {
             long actions=controller.getPlaybackState()==null?~0L:controller.getPlaybackState().getActions();
             prev.setAlpha((actions&PlaybackState.ACTION_SKIP_TO_PREVIOUS)!=0?1:.4f);next.setAlpha((actions&PlaybackState.ACTION_SKIP_TO_NEXT)!=0?1:.4f);
             playGlyph.kind(playing()?"pause":"play");
-            openPill.setText("Open "+appName(pkg));
+            openPill.setText("Abrir "+appName(pkg));
             artwork(m);progress();
             handler.removeCallbacks(tick);if(active&&playing())handler.postDelayed(tick,1000);
         } else {
-            artKey="";artImage.setImageDrawable(null);source.setText("NOW PLAYING");
-            title.setText(access?"Nothing playing":"See what's playing");
-            artist.setText(access?"Music you play on this TV appears here.":"Allow notification access for Luma.");
+            artKey="";artImage.setImageDrawable(null);source.setText("REPRODUCIENDO");
+            title.setText(access?"No se reproduce nada":"Ve lo que se reproduce");
+            artist.setText(access?"La música que pongas en esta TV aparece aquí.":"Permite a Luma acceder a las notificaciones.");
             fillShortcuts();
         }
         if(focused!=null&&(focused.getVisibility()!=VISIBLE||focused.getParent()==null||!focused.isShown())){View first=firstControl();if(first!=null)first.requestFocus();}
@@ -150,7 +150,7 @@ final class NowPlayingWidget extends Widget {
         shortcuts.setVisibility(GONE);prev.setAlpha(1);next.setAlpha(1);
         source.setText(Promo.SOURCE.toUpperCase(Locale.ENGLISH));title.setText(Promo.SONG);artist.setText(Promo.ARTIST);
         playGlyph.kind(Promo.playing?"pause":"play");
-        openPill.setText("Open "+Promo.SOURCE);
+        openPill.setText("Abrir "+Promo.SOURCE);
         if(!artKey.equals("promo")){artKey="promo";fade(Promo.artwork(px(ART)*2));}
         progress();
         handler.removeCallbacks(tick);if(active&&Promo.playing)handler.postDelayed(tick,1000);
@@ -164,8 +164,8 @@ final class NowPlayingWidget extends Widget {
         String key=String.join(",",apps);if(key.equals(shortcutKey))return;shortcutKey=key;
         boolean hadFocus=shortcuts.hasFocus();shortcuts.removeAllViews();
         for(int i=0;i<apps.size();i++){final String pkg=apps.get(i);
-            String[] hero=pkg.equals("@allow")?null:new String[]{"music:open:"+pkg,appName(pkg),"Open "+appName(pkg)+" and start something. It will show up here, with play, pause and skip."};
-            TextView p=pill(pkg.equals("@allow")?"Allow access":appName(pkg),i,hero,()->{
+            String[] hero=pkg.equals("@allow")?null:new String[]{"music:open:"+pkg,appName(pkg),"Abre "+appName(pkg)+" y pon algo. Aparecerá aquí, con reproducir, pausar y saltar."};
+            TextView p=pill(pkg.equals("@allow")?"Permitir acceso":appName(pkg),i,hero,()->{
                 if(pkg.equals("@allow"))host.start(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));else host.launch(pkg);});
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,px(32));lp.rightMargin=px(8);lp.topMargin=px(1);shortcuts.addView(p,lp);}
         if(hadFocus&&shortcuts.getChildCount()>0)shortcuts.getChildAt(0).requestFocus();
@@ -198,7 +198,7 @@ final class NowPlayingWidget extends Widget {
     private String[] hero(){
         if(Promo.on)return new String[]{"music:promo",Promo.SONG,Promo.ARTIST+" · "+Promo.SOURCE};
         if(controller!=null&&!titleOf(controller).isEmpty())return new String[]{"music:"+titleOf(controller),titleOf(controller),UpNextWidget.join(artist.getText().toString(),appName(controller.getPackageName()))};
-        return access?new String[]{"music:none","Now Playing","Start music in an app and control it from Home."}:new String[]{"music:allow","Now Playing","Allow notification access so Luma can show and control the music playing on this TV. Luma does not read your notifications."};
+        return access?new String[]{"music:none","Reproduciendo","Pon música en una app y contrólala desde Inicio."}:new String[]{"music:allow","Reproduciendo","Permite el acceso a las notificaciones para que Luma muestre y controle la música que suena en esta TV. Luma no lee tus notificaciones."};
     }
     @Override protected void onDetachedFromWindow(){setActive(false);handler.removeCallbacksAndMessages(null);super.onDetachedFromWindow();}
 }

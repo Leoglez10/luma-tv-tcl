@@ -35,8 +35,8 @@ public final class DevicesTest {
         expect("Sonos Arc",-1,A,"Sonos Arc","speaker");
         expect("BDP-S6700",Devices.SONY,P,"BDP-S6700","disc");
         expect("DIGITAL_RECEIVER",-1,T,"Digital Receiver","speaker");
-        expect("",-1,R,"Set-top box","box");
-        expect("",-1,-1,"HDMI device","hdmi");
+        expect("",-1,R,"Decodificador","box");
+        expect("",-1,-1,"Dispositivo HDMI","hdmi");
         expect("MyGadget",-1,P,"My Gadget","box");
         System.out.println(failures==0?"\nAll passed.":"\n"+failures+" failed.");
         System.exit(failures==0?0:1);

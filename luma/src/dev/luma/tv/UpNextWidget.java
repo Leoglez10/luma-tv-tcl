@@ -38,9 +38,9 @@ final class UpNextWidget extends Widget {
 
     UpNextWidget(Context context,WidgetBoard.Host host){
         super(context,host,WidgetBoard.width("upnext"));
-        TextView caption=text("Up Next",12.5f,ink(0x99),"sans-serif-medium");addView(caption,pos(200,16,PAD+2,14));
+        TextView caption=text("A continuación",12.5f,ink(0x99),"sans-serif-medium");addView(caption,pos(200,16,PAD+2,14));
         cards=new FrameLayout(context);cards.setClipChildren(false);cards.setClipToPadding(false);addView(cards,new LayoutParams(-1,-1));
-        empty=text("Shows and videos you start will appear here.",13,ink(0x99),"sans-serif");empty.setGravity(Gravity.CENTER);empty.setVisibility(GONE);addView(empty,pos(w-PAD*2,20,PAD,88));
+        empty=text("Las series y videos que empieces aparecerán aquí.",13,ink(0x99),"sans-serif");empty.setGravity(Gravity.CENTER);empty.setVisibility(GONE);addView(empty,pos(w-PAD*2,20,PAD,88));
         refresh();
     }
     @Override void refresh(){
@@ -60,10 +60,10 @@ final class UpNextWidget extends Widget {
             if(room<=0)break;if(withPrograms.contains(pkg))continue;
             MainActivity.App a=host.app(pkg);if(a==null)continue;
             Item i=new Item();i.app=true;i.pkg=pkg;i.key="app:"+pkg;i.title=a.label;
-            long at=lastUsed.containsKey(pkg)?lastUsed.get(pkg):0;i.line=at>0?ago(at):"Recently used";i.detail=at>0?"Opened "+(ago(at).equals("Just now")||ago(at).equals("Yesterday")?ago(at).toLowerCase(Locale.ENGLISH):ago(at)):"Recently used";
+            long at=lastUsed.containsKey(pkg)?lastUsed.get(pkg):0;i.line=at>0?ago(at):"Uso reciente";i.detail=at>0?"Abierta "+ago(at).toLowerCase(Locale.forLanguageTag("es-MX")):"Uso reciente";
             items.add(i);room--;
         }
-        if(!listings&&exists){Item i=new Item();i.allow=true;i.key="allow";i.title="Continue watching";i.line="Allow access";i.detail="Allow Luma to read the Continue watching list that your apps share with Android TV.";items.add(i);}
+        if(!listings&&exists){Item i=new Item();i.allow=true;i.key="allow";i.title="Seguir viendo";i.line="Permitir acceso";i.detail="Permite que Luma lea la lista Seguir viendo que tus apps comparten con Android TV.";items.add(i);}
         return items;
     }
     /** Android TV's Watch Next programmes, most recently watched first. */
@@ -83,11 +83,11 @@ final class UpNextWidget extends Widget {
                 Item i=new Item();i.pkg=(String)r[2];i.key="tv:"+r[1];i.title=r[3]==null?host.app(i.pkg).label:(String)r[3];i.art=(String)r[7];
                 try{if(r[8]!=null)i.intent=Intent.parseUri((String)r[8],Intent.URI_INTENT_SCHEME);}catch(Exception ignored){}
                 long pos=(Long)r[9],dur=(Long)r[10];if(dur>0&&pos>0)i.progress=Math.max(.03f,Math.min(1,pos/(float)dur));
-                String episode=r[5]!=null&&r[6]!=null?"S"+r[5]+" E"+r[6]:r[6]!=null?"Episode "+r[6]:"";
-                String state=dur>0&&pos>0?left(dur-pos):((Integer)r[11]==1?"Next episode":(Integer)r[11]==2?"New":(Integer)r[11]==3?"Watchlist":"");
+                String episode=r[5]!=null&&r[6]!=null?"T"+r[5]+" E"+r[6]:r[6]!=null?"Episodio "+r[6]:"";
+                String state=dur>0&&pos>0?left(dur-pos):((Integer)r[11]==1?"Siguiente episodio":(Integer)r[11]==2?"Nuevo":(Integer)r[11]==3?"En tu lista":"");
                 String app=host.app(i.pkg).label;
                 i.line=join(episode.isEmpty()?state:episode,app);
-                i.detail=join(join(episode,r[4]==null?"":(String)r[4]),join(state,"in "+app));
+                i.detail=join(join(episode,r[4]==null?"":(String)r[4]),join(state,"en "+app));
                 out.add(i);
             }
         }catch(RuntimeException ignored){/* the provider can refuse a query; Up Next then shows recent apps */}
@@ -114,8 +114,8 @@ final class UpNextWidget extends Widget {
     }
     private static boolean skip(Context c,String pkg){return pkg.equals(c.getPackageName())||pkg.startsWith("com.android.")||pkg.startsWith("com.google.android.tv")||pkg.equals("com.google.android.katniss")||pkg.contains("launcher")||pkg.contains("setupwraith");}
     static String join(String a,String b){return a==null||a.isEmpty()?(b==null?"":b):b==null||b.isEmpty()?a:a+" · "+b;}
-    static String left(long ms){long m=Math.max(1,ms/60000);return m<60?m+" min left":m/60+" h "+(m%60>0?m%60+" min ":"")+"left";}
-    static String ago(long at){long m=Math.max(0,(System.currentTimeMillis()-at)/60000);if(m<2)return "Just now";if(m<60)return m+" min ago";if(m<1440)return m/60+" h ago";long d=m/1440;return d==1?"Yesterday":d+" days ago";}
+    static String left(long ms){long m=Math.max(1,ms/60000);return (m==1?"Queda ":"Quedan ")+(m<60?m+" min":m/60+" h"+(m%60>0?" "+m%60+" min":""));}
+    static String ago(long at){long m=Math.max(0,(System.currentTimeMillis()-at)/60000);if(m<2)return "Justo ahora";if(m<60)return "Hace "+m+" min";if(m<1440)return "Hace "+m/60+" h";long d=m/1440;return d==1?"Ayer":"Hace "+d+" días";}
 
     /** Rebuilds the cards only when the list changed, and keeps focus on the same slot. */
     private void show(ArrayList<Item> items){
@@ -135,7 +135,7 @@ final class UpNextWidget extends Widget {
         cell.addView(face,pos(cardW,cardH,0,0));
         if(item.allow){
             Glyph g=new Glyph(c).kind("tv").color(ink(0xD9));face.addView(g,pos(30,30,(cardW-30)/2,cardH/2-24));
-            TextView t=text("Allow access",12,ink(0xD9),"sans-serif-medium");t.setGravity(Gravity.CENTER);face.addView(t,pos(cardW,16,0,cardH/2+12));
+            TextView t=text("Permitir acceso",12,ink(0xD9),"sans-serif-medium");t.setGravity(Gravity.CENTER);face.addView(t,pos(cardW,16,0,cardH/2+12));
         } else if(item.app){
             View art=host.art(item.pkg);if(art!=null)face.addView(art,new LayoutParams(-1,-1));
         } else {

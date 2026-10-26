@@ -42,7 +42,7 @@ final class HouseWidgets extends FrameLayout {
     volatile String snapshot="{}";
     volatile boolean daylight;
     IBinder binder;boolean bound=false,attached=false,active=true,commandBusy=false,loaded=false,fetching=false,portal=false,shown=false,live=false;
-    String revision="",title="Your home",pictured="";JSONObject current;
+    String revision="",title="Tu casa",pictured="";JSONObject current;
     long warningUntil=0;
     final Callbacks callbacks;
     interface Callbacks{void up();void down(float screenX);void open();void focusHome(String title,String detail);void activate();boolean sceneApplied(String id);boolean motion();String sceneDetail(String id,String name);boolean light();
@@ -50,8 +50,8 @@ final class HouseWidgets extends FrameLayout {
     final Runnable refresh=new Runnable(){public void run(){if(!attached||!active)return;fetch();handler.postDelayed(this,2000);}};
     final ServiceConnection connection=new ServiceConnection(){
         public void onServiceConnected(ComponentName name,IBinder service){binder=service;setRemoteActive(active);fetch();if(!loaded){loaded=true;model.loadUrl("http://127.0.0.1:8788/widget.html");}}
-        public void onServiceDisconnected(ComponentName name){binder=null;setStatus("Open House Control to reconnect",false);}
-        public void onBindingDied(ComponentName name){binder=null;setStatus("Open House Control to reconnect",false);}
+        public void onServiceDisconnected(ComponentName name){binder=null;setStatus("Abre House Control para reconectar",false);}
+        public void onBindingDied(ComponentName name){binder=null;setStatus("Abre House Control para reconectar",false);}
     };
 
     HouseWidgets(Activity activity,float scale,Callbacks callbacks){
@@ -85,13 +85,13 @@ final class HouseWidgets extends FrameLayout {
         model.setPivotX(0);model.setPivotY(0);resetModelTransform();
         still=new ImageView(activity);still.setScaleType(ImageView.ScaleType.FIT_XY);still.setVisibility(View.GONE);card.addView(still,new FrameLayout.LayoutParams(-1,-1));
         after=new ImageView(activity);after.setScaleType(ImageView.ScaleType.FIT_XY);after.setVisibility(View.GONE);card.addView(after,new FrameLayout.LayoutParams(-1,-1));
-        cover=new View(activity);cover.setFocusable(true);cover.setFocusableInTouchMode(true);cover.setSoundEffectsEnabled(false);cover.setContentDescription("Open your live 3D home");card.addView(cover,new FrameLayout.LayoutParams(-1,-1));
+        cover=new View(activity);cover.setFocusable(true);cover.setFocusableInTouchMode(true);cover.setSoundEffectsEnabled(false);cover.setContentDescription("Abre tu casa en 3D en vivo");card.addView(cover,new FrameLayout.LayoutParams(-1,-1));
 
         statusRow=new LinearLayout(activity);statusRow.setGravity(Gravity.CENTER);
         dot=new View(activity);dot.setBackground(round(0xFF34C759,3));LinearLayout.LayoutParams dp=new LinearLayout.LayoutParams(px(6),px(6));dp.rightMargin=px(8);statusRow.addView(dot,dp);
-        status=text("Connecting to House Control…",12.5f,ink(0xB8));status.setSingleLine(true);statusRow.addView(status,new LinearLayout.LayoutParams(-2,-2));
+        status=text("Conectando con House Control…",12.5f,ink(0xB8));status.setSingleLine(true);statusRow.addView(status,new LinearLayout.LayoutParams(-2,-2));
         addView(statusRow,pos(CARD_W,20,CARD_X,STATUS_Y));
-        openHint=text("Open House Control",12.5f,callbacks.light()?Color.WHITE:0xFF1D1D1F);openHint.setGravity(Gravity.CENTER);openHint.setPadding(px(14),0,px(14),0);
+        openHint=text("Abrir House Control",12.5f,callbacks.light()?Color.WHITE:0xFF1D1D1F);openHint.setGravity(Gravity.CENTER);openHint.setPadding(px(14),0,px(14),0);
         openHint.setBackground(round(callbacks.light()?0xFF1D1D1F:0xF7FFFFFF,13));openHint.setAlpha(0);
         LayoutParams hp=new LayoutParams(-2,px(26));hp.gravity=Gravity.TOP|Gravity.LEFT;addView(openHint,hp);
         openHint.post(()->{openHint.setTranslationX(px(CARD_X+CARD_W/2)-openHint.getWidth()/2f);openHint.setTranslationY(px(STATUS_Y+10)-openHint.getHeight()/2f);});
@@ -147,7 +147,7 @@ final class HouseWidgets extends FrameLayout {
         final String id,name,icon;final View disc;final SceneIcon glyph;final TextView label;boolean selected,focused;
         SceneTile(String id,String name,String icon){
             super(activity);this.id=id;this.name=name;this.icon=icon;setFocusable(true);setFocusableInTouchMode(true);setSoundEffectsEnabled(false);setClipChildren(false);
-            setContentDescription(name+" scene");
+            setContentDescription("Escena "+name);
             float inset=(SCENE_W-SCENE_D)/2;
             disc=new View(activity);addView(disc,pos(SCENE_D,SCENE_D,inset,0));
             glyph=new SceneIcon(activity);glyph.setKind(icon);addView(glyph,pos(26,26,(SCENE_W-26)/2,(SCENE_D-26)/2));
@@ -178,20 +178,20 @@ final class HouseWidgets extends FrameLayout {
     void setActive(boolean value){active=value;setRemoteActive(value);handler.removeCallbacks(refresh);if(value&&attached){model.onResume();model.evaluateJavascript("window.widgetRunning && window.widgetRunning(true)",null);handler.post(refresh);}else{model.evaluateJavascript("window.widgetRunning && window.widgetRunning(false)",null);model.onPause();}}
     void setRemoteActive(boolean value){if(binder==null||worker.isShutdown())return;worker.execute(()->{IBinder target=binder;if(target==null)return;Parcel in=Parcel.obtain(),out=Parcel.obtain();try{in.writeInt(value?1:0);target.transact(3,in,out,0);out.readException();}catch(Exception ignored){}finally{in.recycle();out.recycle();}});}
     JSONObject transact(int code,String scene)throws Exception{
-        IBinder target=binder;if(target==null)throw new IllegalStateException("Open House Control to connect your home.");Parcel in=Parcel.obtain(),out=Parcel.obtain();try{if(scene!=null)in.writeString(scene);if(!target.transact(code,in,out,0))throw new IllegalStateException("Update House Control for home widgets.");out.readException();return new JSONObject(out.readString());}finally{in.recycle();out.recycle();}
+        IBinder target=binder;if(target==null)throw new IllegalStateException("Abre House Control para conectar tu casa.");Parcel in=Parcel.obtain(),out=Parcel.obtain();try{if(scene!=null)in.writeString(scene);if(!target.transact(code,in,out,0))throw new IllegalStateException("Actualiza House Control para usar los widgets de casa.");out.readException();return new JSONObject(out.readString());}finally{in.recycle();out.recycle();}
     }
-    void fetch(){if(fetching||binder==null||commandBusy)return;fetching=true;worker.execute(()->{try{JSONObject home=transact(1,null);String raw=home.toString();handler.post(()->{if(!attached)return;boolean changed=!raw.equals(snapshot);snapshot=raw;if(changed)update(home);});}catch(Exception error){handler.post(()->{if(attached)setStatus("Open House Control to reconnect",false);});}finally{fetching=false;}});}
+    void fetch(){if(fetching||binder==null||commandBusy)return;fetching=true;worker.execute(()->{try{JSONObject home=transact(1,null);String raw=home.toString();handler.post(()->{if(!attached)return;boolean changed=!raw.equals(snapshot);snapshot=raw;if(changed)update(home);});}catch(Exception error){handler.post(()->{if(attached)setStatus("Abre House Control para reconectar",false);});}finally{fetching=false;}});}
     void setStatus(String value,boolean ok){if(!value.contentEquals(status.getText()))status.setText(value);if(ok!=live||dot.getBackground()==null){live=ok;dot.setBackground(round(ok?0xFF34C759:0xFFF0A94A,3));}}
     void update(JSONObject home){
         if(home.has("error")){setStatus(home.optString("error"),false);return;}current=home;
         String name=home.optJSONObject("plan")==null?"":home.optJSONObject("plan").optString("name");
-        title=home.optBoolean("demo")?(name.isEmpty()?"Demo home":name):"Your home";
+        title=home.optBoolean("demo")?(name.isEmpty()?"Casa de demostración":name):"Tu casa";
         JSONObject state=home.optJSONObject("state"),lights=state==null?null:state.optJSONObject("lights");int on=0,total=lights==null?0:lights.length();if(lights!=null){Iterator<String> keys=lights.keys();while(keys.hasNext())if(lights.optJSONObject(keys.next()).optBoolean("on"))on++;}
-        boolean ready=home.optBoolean("controlReady");String lit=on==0?"All lights off":on+" of "+total+" lights on";
-        if(System.currentTimeMillis()<warningUntil)setStatus("Some devices did not respond",false);
-        else if(!ready)setStatus("Connect Smart Life in House Control",false);
-        else if(!home.optString("cloudError").isEmpty())setStatus(lit+" · Reconnecting",false);
-        else if(home.optLong("lastPoll")==0)setStatus("Updating from Smart Life…",true);
+        boolean ready=home.optBoolean("controlReady");String lit=on==0?"Todas las luces apagadas":on+" de "+total+(total==1?" luz encendida":" luces encendidas");
+        if(System.currentTimeMillis()<warningUntil)setStatus("Algunos dispositivos no respondieron",false);
+        else if(!ready)setStatus("Conecta Smart Life en House Control",false);
+        else if(!home.optString("cloudError").isEmpty())setStatus(lit+" · Reconectando",false);
+        else if(home.optLong("lastPoll")==0)setStatus("Actualizando desde Smart Life…",true);
         else setStatus(home.optBoolean("demo")?lit+" · Demo":lit,true);
         if(!revision.equals(home.optString("revision"))){revision=home.optString("revision");renderScenes(home.optJSONObject("plan"));}
         String selected=state==null?"":state.optString("scene");for(SceneTile t:scenes){boolean s=t.id.equals(selected);if(s!=t.selected){t.selected=s;t.paint();}}
@@ -202,7 +202,7 @@ final class HouseWidgets extends FrameLayout {
     void renderScenes(JSONObject plan){
         boolean hadFocus=false;for(SceneTile t:scenes)hadFocus|=t.hasFocus();
         row.removeAllViews();scenes.clear();JSONArray list=plan==null?null:plan.optJSONArray("scenes");int count=list==null?0:Math.min(5,list.length());
-        if(count==0){for(String[] s:new String[][]{{"bright","Bright","sun"},{"cozy","Cozy","sofa"},{"movie","Movie","film"},{"night","Night","moon"},{"away","Away","door"}})addScene(s[0],s[1],s[2]);}
+        if(count==0){for(String[] s:new String[][]{{"bright","Luminosa","sun"},{"cozy","Acogedora","sofa"},{"movie","Película","film"},{"night","Noche","moon"},{"away","Fuera de casa","door"}})addScene(s[0],s[1],s[2]);}
         else for(int i=0;i<count;i++){JSONObject s=list.optJSONObject(i);addScene(s.optString("id"),s.optString("name",s.optString("id")),s.optString("icon","sun"));}
         for(int i=0;i<scenes.size();i++){final int index=i;SceneTile t=scenes.get(i);t.setOnKeyListener((v,key,event)->{if(event.getAction()!=KeyEvent.ACTION_DOWN)return false;
             if(key==KeyEvent.KEYCODE_DPAD_UP){callbacks.up();return true;}
@@ -213,8 +213,8 @@ final class HouseWidgets extends FrameLayout {
         if(hadFocus&&!scenes.isEmpty())scenes.get(0).requestFocus();
     }
     void addScene(String id,String name,String icon){SceneTile t=new SceneTile(id,name,icon);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(px(SCENE_W),px(SCENE_H));if(!scenes.isEmpty())lp.leftMargin=px(SCENE_GAP);row.addView(t,lp);scenes.add(t);}
-    void runScene(String id,String name){if(commandBusy)return;if(current==null||!current.optBoolean("controlReady")){callbacks.open();return;}commandBusy=true;for(SceneTile t:scenes)t.paint();setStatus("Setting "+name+"…",true);
-        final boolean demo=current.optBoolean("demo");worker.execute(()->{try{JSONObject result=transact(demo?4:2,id);handler.post(()->{if(!attached)return;commandBusy=false;if(result.has("error")){warningUntil=System.currentTimeMillis()+15000;setStatus("Some devices did not respond",false);Toast.makeText(activity,result.optString("error"),Toast.LENGTH_LONG).show();}else{warningUntil=0;JSONObject home=result.optJSONObject("home");if(home!=null){snapshot=home.toString();update(home);}handler.removeCallbacks(repaint);reveal(()->callbacks.sceneApplied(id));}for(SceneTile t:scenes)t.paint();if(result.has("error"))handler.post(repaint);fetch();});}catch(Exception error){handler.post(()->{commandBusy=false;for(SceneTile t:scenes)t.paint();if(attached)Toast.makeText(activity,"Could not apply scene. Open House Control.",Toast.LENGTH_LONG).show();});}});
+    void runScene(String id,String name){if(commandBusy)return;if(current==null||!current.optBoolean("controlReady")){callbacks.open();return;}commandBusy=true;for(SceneTile t:scenes)t.paint();setStatus("Activando "+name+"…",true);
+        final boolean demo=current.optBoolean("demo");worker.execute(()->{try{JSONObject result=transact(demo?4:2,id);handler.post(()->{if(!attached)return;commandBusy=false;if(result.has("error")){warningUntil=System.currentTimeMillis()+15000;setStatus("Algunos dispositivos no respondieron",false);Toast.makeText(activity,result.optString("error"),Toast.LENGTH_LONG).show();}else{warningUntil=0;JSONObject home=result.optJSONObject("home");if(home!=null){snapshot=home.toString();update(home);}handler.removeCallbacks(repaint);reveal(()->callbacks.sceneApplied(id));}for(SceneTile t:scenes)t.paint();if(result.has("error"))handler.post(repaint);fetch();});}catch(Exception error){handler.post(()->{commandBusy=false;for(SceneTile t:scenes)t.paint();if(attached)Toast.makeText(activity,"No se pudo aplicar la escena. Abre House Control.",Toast.LENGTH_LONG).show();});}});
     }
     float tvX=.5f,tvY=.5f;
     /** Reads the model as a picture (with transparency). settled=true jumps light fades to their end first. */

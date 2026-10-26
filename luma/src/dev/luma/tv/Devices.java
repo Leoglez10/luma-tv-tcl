@@ -41,11 +41,11 @@ final class Devices {
         if(n.startsWith("roku"))return new Device(pretty(raw),"box",0xFF6F1AB1);
         if(n.contains("mitvstick")||n.contains("mibox")||n.contains("xiaomitv"))return new Device(pretty(raw),"box",0xFFFF6900);
         // Sound: a soundbar or an AV receiver announces itself as an audio system.
-        if(type==AUDIO||n.contains("soundbar")||n.matches(".*(receiver|avr|sonos|bose|harman).*"))return new Device(raw.isEmpty()?"Sound system":pretty(raw),"speaker",BLUE);
-        if(n.matches(".*(bluray|bdplayer|bdp\\d*|dvd).*"))return new Device(raw.isEmpty()?"Blu-ray player":pretty(raw),"disc",BLUE);
+        if(type==AUDIO||n.contains("soundbar")||n.matches(".*(receiver|avr|sonos|bose|harman).*"))return new Device(raw.isEmpty()?"Sistema de sonido":pretty(raw),"speaker",BLUE);
+        if(n.matches(".*(bluray|bdplayer|bdp\\d*|dvd).*"))return new Device(raw.isEmpty()?"Reproductor Blu-ray":pretty(raw),"disc",BLUE);
         if(n.matches(".*(pc|laptop|macbook|computer|desktop).*"))return new Device(pretty(raw),"tv",BLUE);
-        if(type==TUNER||type==RECORDER)return new Device(raw.isEmpty()?"Set-top box":pretty(raw),"box",BLUE);
-        return new Device(raw.isEmpty()?"HDMI device":pretty(raw),type==PLAYBACK?"box":"hdmi",BLUE);
+        if(type==TUNER||type==RECORDER)return new Device(raw.isEmpty()?"Decodificador":pretty(raw),"box",BLUE);
+        return new Device(raw.isEmpty()?"Dispositivo HDMI":pretty(raw),type==PLAYBACK?"box":"hdmi",BLUE);
     }
     /** "NintendoSwitch" → "Nintendo Switch", "DIGITAL_RECEIVER" → "Digital Receiver"; names with spaces stay. */
     static String pretty(String raw){
