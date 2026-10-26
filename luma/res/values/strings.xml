@@ -1,5 +1,5 @@
 <resources>
     <!-- Replaced at build time by LUMA_GREETING or .local/greeting.txt (build.sh). -->
     <string name="greeting">Hola</string>
-    <string name="key_service_description">Abre YouTube, Prime Video, Netflix, ViX y Apple TV con sus botones del control remoto.</string>
+    <string name="key_service_description">Abre YouTube, Prime Video, Netflix y ViX con sus botones del control remoto, y Spotify con el botón de Apple TV.</string>
 </resources>

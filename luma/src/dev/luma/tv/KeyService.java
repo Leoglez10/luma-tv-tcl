@@ -13,7 +13,7 @@ public final class KeyService extends AccessibilityService {
     // ponytail: this household's remote; add a scan code here for another button.
     static final int[] SCANS={245,752,242,640,652};
     static final String[] APPS={"com.google.android.youtube.tv","com.amazon.amazonvideo.livingroom","com.netflix.ninja",
-        "com.univision.prendetv","com.apple.atve.androidtv.appletv"};
+        "com.univision.prendetv","com.spotify.tv.android"}; // the Apple TV button opens Spotify (household choice)
 
     static String app(int scanCode){for(int i=0;i<SCANS.length;i++)if(SCANS[i]==scanCode)return APPS[i];return null;}
 
