@@ -815,7 +815,7 @@ public final class MainActivity extends Activity {
         controls.add(option(list,"Widgets de Inicio",this::widgetSummary,null,this::widgetEditor,
             ()->preview(0,"Widgets de Inicio","Elige qué muestra Inicio sobre tus apps — "+(house?"Casa inteligente, ":"")+"A continuación, Clima, "+(InputsWidget.count>0?"Entradas, ":"")+"Reproduciendo y Control — y su orden. Izquierda y Derecha cambian de página.")));
         controls.add(option(list,"Temperatura",()->new String[]{"Automática","Celsius","Fahrenheit"}[unitIndex()],null,this::temperatureMenu,
-            ()->preview(0,"Temperatura","El clima en Celsius o Fahrenheit. Automática sigue la región de la TV. El pronóstico es para "+Daylight.city()+", la ciudad principal de la zona horaria de la TV.")));
+            ()->preview(0,"Temperatura","El clima en Celsius o Fahrenheit. Automática sigue la región de la TV. El pronóstico es para Zapopan o Guadalajara: OK sobre el clima cambia de ciudad.")));
         if(house)controls.add(option(list,"Apps de escenas",()->"Elegir",null,this::sceneApps,()->preview(0,"Apps de escenas","Abre una app después de una escena: Película puede iniciar Netflix al bajar las luces.")));
         controls.add(option(list,"Pantalla de inicio",()->lumaIsHome()?"Luma":"De la TV",null,this::homeScreen,
             ()->preview(0,"Pantalla de inicio",lumaIsHome()?"Luma se abre al presionar Inicio. Elige para volver a la pantalla de inicio de tu TV.":"La pantalla de inicio de tu TV se abre al presionar Inicio.")));

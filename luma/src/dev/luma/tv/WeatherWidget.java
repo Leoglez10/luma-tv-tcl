@@ -16,12 +16,15 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.json.*;
 
-/** Weather for the main city of the TV's time zone (the place Daylight uses for sunrise): no location permission.
- *  Forecasts come from Open-Meteo (open-meteo.com, free, no account or key); the request carries only the city's
- *  rounded coordinates. The last forecast is kept, so Home shows it at once and offline. OK switches between
- *  the next hours and the coming days. */
+/** Weather for one of CITIES (fixed for this household): no location permission. Forecasts come from Open-Meteo
+ *  (open-meteo.com, free, no account or key); the request carries only the city's rounded coordinates. The last
+ *  forecast is kept, so Home shows it at once and offline. OK switches to the next city; holding OK switches
+ *  between the next hours and the coming days. */
 final class WeatherWidget extends Widget {
     static final long FRESH=30*60000L;
+    // ponytail: hardcoded for this household; a city picker in Settings if it ever needs to change.
+    static final String[] CITIES={"Zapopan","Guadalajara"};
+    static final double[][] PLACES={{20.72,-103.39},{20.67,-103.35}};
     static final float PAD=18,SLOTS_Y=114;
     final TextView city,temp,condition,range,error;
     final Glyph glyph;
@@ -44,7 +47,10 @@ final class WeatherWidget extends Widget {
         error=text("",12.5f,ink(0x99),"sans-serif");error.setGravity(Gravity.CENTER);error.setVisibility(GONE);addView(error,pos(w-PAD*2,16,PAD,134));
         setFocusable(true);setFocusableInTouchMode(true);setSoundEffectsEnabled(false);setPivotX(px(w/2));setPivotY(px(WidgetBoard.ROW_H/2));
         setOnFocusChangeListener((v,f)->{focused=f;paintFocus();if(f)heroNow();});
-        setOnClickListener(v->{host.open();press(this,1.04f);if(data==null){load(true);return;}daily=!daily;fillSlots(true);heroNow();});
+        setOnClickListener(v->{host.open();press(this,1.04f);
+            host.prefs().edit().putInt("weather_city",(cityIndex()+1)%CITIES.length).apply();
+            city.setText(city());data=null;placeholder();heroNow();load(true);});
+        setOnLongClickListener(v->{if(data==null)return false;press(this,1.04f);daily=!daily;fillSlots(true);heroNow();return true;});
         try{String raw=host.prefs().getString("weather_json","");if(!raw.isEmpty()&&key().equals(host.prefs().getString("weather_key",""))){data=new JSONObject(raw);fill();}}catch(JSONException ignored){}
         if(data==null)placeholder();
     }
@@ -60,9 +66,10 @@ final class WeatherWidget extends Widget {
         if(motion())animate().scaleX(s).scaleY(s).translationY(focused?-px(3):0).setDuration(focused?460:300).setInterpolator(focused?spring:ease).start();else{setScaleX(s);setScaleY(s);}
         setElevation(px(focused?10:0));
     }
-    /** The time zone's main city, or Miami in the promo demo (Promo). */
-    String city(){return Promo.on?Promo.CITY:Daylight.city();}
-    double[] place(){return Promo.on?Promo.MIAMI:Daylight.place(getContext());}
+    /** The chosen city, or Miami in the promo demo (Promo). */
+    private int cityIndex(){return Math.floorMod(host.prefs().getInt("weather_city",0),CITIES.length);}
+    String city(){return Promo.on?Promo.CITY:CITIES[cityIndex()];}
+    double[] place(){return Promo.on?Promo.MIAMI:PLACES[cityIndex()];}
     static boolean fahrenheit(android.content.SharedPreferences prefs){
         String unit=prefs.getString("temp_unit","auto");if(!unit.equals("auto"))return unit.equals("f");
         if(Promo.on)return true;
@@ -89,6 +96,7 @@ final class WeatherWidget extends Widget {
             }catch(Exception ignored){}
             final JSONObject done=result;
             post(()->{loading=false;
+                if(!key.equals(key())){load(true);return;} // the city changed while this forecast was loading
                 if(done!=null){host.prefs().edit().putString("weather_json",done.toString()).putLong("weather_at",System.currentTimeMillis()).putString("weather_key",key).apply();data=done;fill();if(focused)heroNow();}
                 else if(data==null)showError("El clima no está disponible por ahora");});
         });
@@ -134,11 +142,12 @@ final class WeatherWidget extends Widget {
     }
     /** "lun." → "Lun": a day name shown alone. */
     private static String day(String s){s=s.replace(".","");return s.isEmpty()?s:Character.toUpperCase(s.charAt(0))+s.substring(1);}
+    private String next(){return CITIES[(cityIndex()+1)%CITIES.length];}
     private void heroNow(){
-        if(data==null){host.hero("weather",city(),error.getVisibility()==VISIBLE?error.getText()+". OK vuelve a intentarlo.":"Cargando el pronóstico…");return;}
+        if(data==null){host.hero("weather",city(),error.getVisibility()==VISIBLE?error.getText()+". OK cambia a "+next()+" y vuelve a intentarlo.":"Cargando el pronóstico…");return;}
         try{JSONObject now=data.getJSONObject("current"),day=data.getJSONObject("daily");
             String title=city()+"  "+deg(now.getDouble("temperature_2m"));
-            String detail=Glyph.weatherName(now.optInt("weather_code"))+". Máxima "+deg(day.getJSONArray("temperature_2m_max").getDouble(0))+", mínima "+deg(day.getJSONArray("temperature_2m_min").getDouble(0))+" · OK muestra "+(daily?"las próximas horas":"los próximos días");
+            String detail=Glyph.weatherName(now.optInt("weather_code"))+" · OK cambia a "+next();
             host.hero("weather:"+daily,title,detail);
         }catch(JSONException ignored){}
     }
