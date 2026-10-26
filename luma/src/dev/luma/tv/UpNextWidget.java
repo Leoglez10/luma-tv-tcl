@@ -25,13 +25,17 @@ import java.util.*;
 final class UpNextWidget extends Widget {
     static final Uri WATCH_NEXT=Uri.parse("content://android.media.tv/watch_next_program");
     static final String LISTINGS="android.permission.READ_TV_LISTINGS";
-    static final int SLOTS=3;
+    /** Up to SLOTS cards, SHOWN at a time; Left and Right slide the row. */
+    static final int SLOTS=6,SHOWN=3,PER_APP=2;
+    // ponytail: the household asked to leave ViX out of Up Next; a setting if the list ever grows.
+    static final Set<String> HIDDEN=new HashSet<>(Arrays.asList("com.univision.prendetv"));
     static final float PAD=18,GAP_X=12,CARD_Y=38;
     /** Posters already decoded, by link: Home rebuilds often (every return from an app), posters rarely change. */
     static final LinkedHashMap<String,Bitmap> posters=new LinkedHashMap<String,Bitmap>(16,.75f,true){@Override protected boolean removeEldestEntry(Map.Entry<String,Bitmap> e){return size()>12;}};
     static final class Item{String key,title,line,detail,pkg,art;Intent intent;float progress=-1;boolean app,allow;}
 
-    final float cardW=(w-PAD*2-GAP_X*(SLOTS-1))/SLOTS,cardH=cardW*9/16;
+    final float cardW=(w-PAD*2-GAP_X*(SHOWN-1))/SHOWN,cardH=cardW*9/16;
+    int first;   // the leftmost card in view
     final FrameLayout cards;
     final TextView empty;
     String shown=null;   // null: nothing shown yet, so an empty list still shows its message
@@ -75,11 +79,12 @@ final class UpNextWidget extends Widget {
             ArrayList<Object[]> rows=new ArrayList<>();
             while(c.moveToNext()){
                 if(!c.isNull(13)&&c.getInt(13)==0)continue;
-                String pkg=c.getString(1);if(pkg==null||host.app(pkg)==null)continue;
+                String pkg=c.getString(1);if(pkg==null||HIDDEN.contains(pkg)||host.app(pkg)==null)continue;
                 rows.add(new Object[]{c.getLong(11),c.getLong(0),pkg,c.getString(2),c.getString(3),c.getString(4),c.getString(5),c.getString(7)!=null?c.getString(7):c.getString(6),c.getString(8),c.getLong(9),c.getLong(10),c.getInt(12)});
             }
             Collections.sort(rows,(a,b)->Long.compare((Long)b[0],(Long)a[0]));
-            for(Object[] r:rows){
+            List<String> pkgs=new ArrayList<>(),titles=new ArrayList<>();for(Object[] r:rows){pkgs.add((String)r[2]);titles.add((String)r[3]);}
+            for(int k:WatchNext.pick(pkgs,titles,PER_APP,SLOTS)){Object[] r=rows.get(k);
                 Item i=new Item();i.pkg=(String)r[2];i.key="tv:"+r[1];i.title=r[3]==null?host.app(i.pkg).label:(String)r[3];i.art=(String)r[7];
                 try{if(r[8]!=null)i.intent=Intent.parseUri((String)r[8],Intent.URI_INTENT_SCHEME);}catch(Exception ignored){}
                 long pos=(Long)r[9],dur=(Long)r[10];if(dur>0&&pos>0)i.progress=Math.max(.03f,Math.min(1,pos/(float)dur));
@@ -112,7 +117,7 @@ final class UpNextWidget extends Widget {
         }
         return out;
     }
-    private static boolean skip(Context c,String pkg){return pkg.equals(c.getPackageName())||pkg.startsWith("com.android.")||pkg.startsWith("com.google.android.tv")||pkg.equals("com.google.android.katniss")||pkg.contains("launcher")||pkg.contains("setupwraith");}
+    private static boolean skip(Context c,String pkg){return HIDDEN.contains(pkg)||pkg.equals(c.getPackageName())||pkg.startsWith("com.android.")||pkg.startsWith("com.google.android.tv")||pkg.equals("com.google.android.katniss")||pkg.contains("launcher")||pkg.contains("setupwraith");}
     static String join(String a,String b){return a==null||a.isEmpty()?(b==null?"":b):b==null||b.isEmpty()?a:a+" · "+b;}
     static String left(long ms){long m=Math.max(1,ms/60000);return (m==1?"Queda ":"Quedan ")+(m<60?m+" min":m/60+" h"+(m%60>0?" "+m%60+" min":""));}
     static String ago(long at){long m=Math.max(0,(System.currentTimeMillis()-at)/60000);if(m<2)return "Justo ahora";if(m<60)return "Hace "+m+" min";if(m<1440)return "Hace "+m/60+" h";long d=m/1440;return d==1?"Ayer":"Hace "+d+" días";}
@@ -125,7 +130,9 @@ final class UpNextWidget extends Widget {
         cards.removeAllViews();
         empty.setVisibility(items.isEmpty()?VISIBLE:GONE);
         for(int s=0;s<items.size();s++)cards.addView(card(items.get(s),s),pos(cardW,cardH+46,PAD+s*(cardW+GAP_X),CARD_Y));
-        if(focusedSlot>=0&&cards.getChildCount()>0)cards.getChildAt(Math.min(focusedSlot,cards.getChildCount()-1)).requestFocus();
+        int slot=Math.min(Math.max(focusedSlot,0),Math.max(0,cards.getChildCount()-1));
+        if(focusedSlot<0)first=0;window(slot,false);
+        if(focusedSlot>=0&&cards.getChildCount()>0)cards.getChildAt(slot).requestFocus();
     }
     private View card(Item item,int slot){
         Context c=getContext();
@@ -162,7 +169,21 @@ final class UpNextWidget extends Widget {
             if(f){host.hero("upnext:"+item.key,item.title,item.detail);}
         });
         cell.setOnClickListener(v->{host.open();press(face,1.08f);open(item);});
+        // Left and Right move along the row here, so a card out of view is never skipped for the next widget.
+        cell.setOnKeyListener((v,code,e)->{
+            int to=code==KeyEvent.KEYCODE_DPAD_RIGHT?slot+1:code==KeyEvent.KEYCODE_DPAD_LEFT?slot-1:-1;
+            if(to<0||to>=cards.getChildCount())return false;
+            if(e.getAction()==KeyEvent.ACTION_DOWN){window(to,true);cards.getChildAt(to).requestFocus();}
+            return true;
+        });
         return cell;
+    }
+    /** Slides the row so the card at slot is in view; cards out of view are hidden, so focus cannot land on them. */
+    private void window(int slot,boolean animate){
+        if(slot<first)first=slot;if(slot>first+SHOWN-1)first=slot-SHOWN+1;first=Math.max(0,Math.min(first,Math.max(0,cards.getChildCount()-SHOWN)));
+        for(int i=0;i<cards.getChildCount();i++)cards.getChildAt(i).setVisibility(i>=first&&i<first+SHOWN?VISIBLE:INVISIBLE);
+        float x=-px(first*(cardW+GAP_X));cards.animate().cancel();
+        if(animate&&motion())cards.animate().translationX(x).setDuration(320).setInterpolator(ease).start();else cards.setTranslationX(x);
     }
     private void open(Item item){
         if(item.allow){
