@@ -25,8 +25,9 @@ import java.util.*;
 final class UpNextWidget extends Widget {
     static final Uri WATCH_NEXT=Uri.parse("content://android.media.tv/watch_next_program");
     static final String LISTINGS="android.permission.READ_TV_LISTINGS";
-    /** Up to SLOTS cards, SHOWN at a time; Left and Right slide the row. */
-    static final int SLOTS=6,SHOWN=3,PER_APP=2;
+    /** SHOWN cards on Home; the + button opens all of them, up to SLOTS. */
+    static final int SLOTS=12,SHOWN=3,PER_APP=2;
+    static final float MORE_W=44;
     // ponytail: the household asked to leave ViX out of Up Next; a setting if the list ever grows.
     static final Set<String> HIDDEN=new HashSet<>(Arrays.asList("com.univision.prendetv"));
     static final float PAD=18,GAP_X=12,CARD_Y=38;
@@ -34,8 +35,8 @@ final class UpNextWidget extends Widget {
     static final LinkedHashMap<String,Bitmap> posters=new LinkedHashMap<String,Bitmap>(16,.75f,true){@Override protected boolean removeEldestEntry(Map.Entry<String,Bitmap> e){return size()>12;}};
     static final class Item{String key,title,line,detail,pkg,art;Intent intent;float progress=-1;boolean app,allow;}
 
-    final float cardW=(w-PAD*2-GAP_X*(SHOWN-1))/SHOWN,cardH=cardW*9/16;
-    int first;   // the leftmost card in view
+    final float cardW=(w-PAD*2-GAP_X*SHOWN-MORE_W)/SHOWN,cardH=cardW*9/16;
+    ArrayList<Item> all=new ArrayList<>();
     final FrameLayout cards;
     final TextView empty;
     String shown=null;   // null: nothing shown yet, so an empty list still shows its message
@@ -129,10 +130,10 @@ final class UpNextWidget extends Widget {
         int focusedSlot=-1;for(int s=0;s<cards.getChildCount();s++)if(cards.getChildAt(s).hasFocus())focusedSlot=s;
         cards.removeAllViews();
         empty.setVisibility(items.isEmpty()?VISIBLE:GONE);
-        for(int s=0;s<items.size();s++)cards.addView(card(items.get(s),s),pos(cardW,cardH+46,PAD+s*(cardW+GAP_X),CARD_Y));
-        int slot=Math.min(Math.max(focusedSlot,0),Math.max(0,cards.getChildCount()-1));
-        if(focusedSlot<0)first=0;window(slot,false);
-        if(focusedSlot>=0&&cards.getChildCount()>0)cards.getChildAt(slot).requestFocus();
+        all=items;
+        for(int s=0;s<Math.min(SHOWN,items.size());s++)cards.addView(card(items.get(s),s),pos(cardW,cardH+46,PAD+s*(cardW+GAP_X),CARD_Y));
+        if(items.size()>SHOWN)cards.addView(more(),pos(MORE_W,cardH,PAD+SHOWN*(cardW+GAP_X),CARD_Y));
+        if(focusedSlot>=0&&cards.getChildCount()>0)cards.getChildAt(Math.min(focusedSlot,cards.getChildCount()-1)).requestFocus();
     }
     private View card(Item item,int slot){
         Context c=getContext();
@@ -169,21 +170,26 @@ final class UpNextWidget extends Widget {
             if(f){host.hero("upnext:"+item.key,item.title,item.detail);}
         });
         cell.setOnClickListener(v->{host.open();press(face,1.08f);open(item);});
-        // Left and Right move along the row here, so a card out of view is never skipped for the next widget.
-        cell.setOnKeyListener((v,code,e)->{
-            int to=code==KeyEvent.KEYCODE_DPAD_RIGHT?slot+1:code==KeyEvent.KEYCODE_DPAD_LEFT?slot-1:-1;
-            if(to<0||to>=cards.getChildCount())return false;
-            if(e.getAction()==KeyEvent.ACTION_DOWN){window(to,true);cards.getChildAt(to).requestFocus();}
-            return true;
-        });
         return cell;
     }
-    /** Slides the row so the card at slot is in view; cards out of view are hidden, so focus cannot land on them. */
-    private void window(int slot,boolean animate){
-        if(slot<first)first=slot;if(slot>first+SHOWN-1)first=slot-SHOWN+1;first=Math.max(0,Math.min(first,Math.max(0,cards.getChildCount()-SHOWN)));
-        for(int i=0;i<cards.getChildCount();i++)cards.getChildAt(i).setVisibility(i>=first&&i<first+SHOWN?VISIBLE:INVISIBLE);
-        float x=-px(first*(cardW+GAP_X));cards.animate().cancel();
-        if(animate&&motion())cards.animate().translationX(x).setDuration(320).setInterpolator(ease).start();else cards.setTranslationX(x);
+    /** The + button after the cards: opens every card in a panel. */
+    private View more(){
+        TextView plus=text("+",26,ink(0xE6),"sans-serif-light");plus.setGravity(Gravity.CENTER);plus.setPivotX(px(MORE_W/2));plus.setPivotY(px(cardH/2));
+        control(plus,SHOWN,1.08f,f->{plus.setBackground(round(f?focusFill():restFill(),12));plus.setTextColor(f?focusInk():ink(0xE6));},
+            ()->new String[]{"upnext:more","Ver más",all.size()+" para seguir viendo · OK los muestra todos"},this::openAll);
+        return plus;
+    }
+    /** Every card, four to a row, over a dimmed Home; Back closes it. */
+    private void openAll(){
+        FrameLayout o=host.overlay();int cols=4,rows=(all.size()+cols-1)/cols;float cellH=cardH+60,pw=PAD*2+cols*cardW+(cols-1)*GAP_X*2,ph=64+rows*cellH+8;
+        FrameLayout panel=new FrameLayout(getContext());panel.setBackground(round(0xF51C1C1E,24));panel.setElevation(px(24));panel.setClipChildren(false);
+        LayoutParams lp=new LayoutParams(px(pw),px(ph));lp.gravity=Gravity.CENTER;o.addView(panel,lp);
+        panel.addView(text("Seguir viendo",20,Color.WHITE,"sans-serif-medium"),pos(pw-48,26,24,22));
+        View first=null;
+        for(int i=0;i<all.size();i++){final Item item=all.get(i);
+            View cell=card(item,i);cell.setOnClickListener(v->{host.closeOverlay();host.open();open(item);});
+            panel.addView(cell,pos(cardW,cardH+46,PAD+(i%cols)*(cardW+GAP_X*2),64+(i/cols)*cellH));if(first==null)first=cell;}
+        final View focus=first;post(()->{if(focus!=null)focus.requestFocus();});
     }
     private void open(Item item){
         if(item.allow){
