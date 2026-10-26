@@ -460,6 +460,8 @@ public final class MainActivity extends Activity {
         public boolean light(){return light;}
         public boolean motion(){return MainActivity.this.motion();}
         public void open(){sound();}
+        public FrameLayout overlay(){return openOverlay(0xA6000000);}
+        public void closeOverlay(){MainActivity.this.closeOverlay(false);}
         public void hero(String key,String title,String detail){holdGreeting=false;homeGreeting=false;setHero(key,title,detail);}
         public View up(){return tabs.get(0);}
         public View down(float x){return nearestTile(x);}

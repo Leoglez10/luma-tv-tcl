@@ -33,6 +33,21 @@ final class Wiz {
         }catch(JSONException e){throw new IllegalStateException(e);}
     }
 
+    /** A saturated colour at full brightness, hue in degrees: {r, g, b} in 0–255. */
+    static int[] rgb(int hue){
+        float h=((hue%360)+360)%360/60f,x=1-Math.abs(h%2-1);int s=(int)h;
+        float[] c=s==0?new float[]{1,x,0}:s==1?new float[]{x,1,0}:s==2?new float[]{0,1,x}:s==3?new float[]{0,x,1}:s==4?new float[]{x,0,1}:new float[]{1,0,x};
+        return new int[]{Math.round(c[0]*255),Math.round(c[1]*255),Math.round(c[2]*255)};
+    }
+    /** On, in a saturated colour (the white LEDs off). */
+    static String setColor(int dimming,int hue){
+        try{
+            int[] c=rgb(hue);
+            JSONObject params=new JSONObject().put("state",true).put("dimming",Math.max(10,Math.min(100,dimming))).put("r",c[0]).put("g",c[1]).put("b",c[2]).put("c",0).put("w",0);
+            return new JSONObject().put("method","setPilot").put("params",params).toString();
+        }catch(JSONException e){throw new IllegalStateException(e);}
+    }
+
     /** The bulb's MAC from a registration reply, or null. */
     static String mac(String reply){
         JSONObject result=result(reply,"registration");if(result==null)return null;

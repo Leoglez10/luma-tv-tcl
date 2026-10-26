@@ -32,6 +32,8 @@ final class WidgetBoard extends FrameLayout {
         MainActivity.App app(String pkg);View art(String pkg);
         void launch(String pkg);void start(Intent intent);
         SharedPreferences prefs();Activity activity();
+        /** A dimmed full-screen layer for a panel; Back closes it, and focus returns where it was. */
+        FrameLayout overlay();void closeOverlay();
     }
     static String title(String id){switch(id){case "house":return "Casa inteligente";case "inputs":return "Entradas";case "upnext":return "A continuación";case "weather":return "Clima";case "lights":return "Luces";case "music":return "Reproduciendo";default:return "Control";}}
     static String glyph(String id){switch(id){case "house":return "home";case "inputs":return "hdmi";case "upnext":return "tv";case "weather":return "partly";case "lights":return "bulb";case "music":return "note";default:return "gear";}}

@@ -43,6 +43,11 @@ public final class WizTest {
         expect("setPilot params",set.getJSONObject("params").toString(),new JSONObject("{\"state\":true,\"dimming\":60,\"temp\":2700}").toString());
         expect("setPilot off has only state",new JSONObject(Wiz.setPilot(false,-1,-1)).getJSONObject("params").toString(),"{\"state\":false}");
 
+        expect("red",java.util.Arrays.toString(Wiz.rgb(0)),"[255, 0, 0]");
+        expect("green",java.util.Arrays.toString(Wiz.rgb(120)),"[0, 255, 0]");
+        expect("purple",java.util.Arrays.toString(Wiz.rgb(270)),"[128, 0, 255]");
+        expect("setColor params",new JSONObject(Wiz.setColor(40,240)).getJSONObject("params").toString(),new JSONObject("{\"state\":true,\"dimming\":40,\"r\":0,\"g\":0,\"b\":255,\"c\":0,\"w\":0}").toString());
+
         expect("ack",Wiz.ack("{\"method\":\"setPilot\",\"env\":\"pro\",\"result\":{\"success\":true}}"),true);
         expect("ack must be boolean true",Wiz.ack("{\"method\":\"setPilot\",\"result\":{\"success\":1}}"),false);
         expect("ack of another method",Wiz.ack("{\"method\":\"getPilot\",\"result\":{\"success\":true}}"),false);

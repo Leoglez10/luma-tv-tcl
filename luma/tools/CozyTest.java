@@ -44,6 +44,12 @@ public final class CozyTest {
         expect("off sends only the switch",new JSONObject(Cozy.set("9",false,-1,-1)).getJSONObject("msg").getJSONObject("data").toString(),"{\"1\":0}");
         expect("on without values",new JSONObject(Cozy.set("9",true,-1,-1)).getJSONObject("msg").getJSONObject("data").toString(),"{\"1\":255}");
 
+        JSONObject color=new JSONObject(Cozy.color("9",40,240));
+        expect("color data",color.getJSONObject("msg").getJSONObject("data").toString(),new JSONObject("{\"1\":255,\"2\":0,\"4\":400,\"5\":240,\"6\":1000}").toString());
+        expect("color attrs",color.getJSONObject("msg").getJSONArray("attr").toString(),"[1,2,4,5,6]");
+        Wiz.State blue=Cozy.state("{\"cmd\":2,\"msg\":{\"data\":{\"1\":1,\"2\":0,\"3\":65535,\"4\":1000,\"5\":240,\"6\":1000}},\"res\":0}");
+        expect("read colour",Integer.toHexString(blue.color()),"ff0000ff");
+
         System.out.println(failures==0?"all passed":failures+" failed");
         if(failures>0)System.exit(1);
     }

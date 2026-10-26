@@ -22,6 +22,15 @@ final class Cozy {
         }catch(JSONException e){throw new IllegalStateException(e);}
     }
 
+    /** On, in a saturated colour: data points 5 (hue, degrees) and 6 (saturation 0–1000). */
+    static String color(String sn,int dimming,int hue){
+        try{
+            JSONObject data=new JSONObject().put("1",255).put("2",0).put("4",Math.max(10,Math.min(100,dimming))*10).put("5",((hue%360)+360)%360).put("6",1000);
+            JSONArray attr=new JSONArray().put(1).put(2).put(4).put(5).put(6);
+            return new JSONObject().put("cmd",3).put("pv",0).put("sn",sn).put("msg",new JSONObject().put("attr",attr).put("data",data)).toString()+"\r\n";
+        }catch(JSONException e){throw new IllegalStateException(e);}
+    }
+
     /** The bulb's MAC from the discovery reply to probe(sn), or null. */
     static String mac(String reply,String sn){
         try{
@@ -40,6 +49,8 @@ final class Cozy {
             int b=data.optInt("4",UNKNOWN),t=data.optInt("3",UNKNOWN);
             if(b>=0&&b<=1000)s.dimming=Math.max(1,Math.round(b/10f));
             if(t>=0&&t<=1000)s.temp=MIN_K+Math.round(t*(MAX_K-MIN_K)/1000f);
+            int hue=data.optInt("5",UNKNOWN),sat=data.optInt("6",UNKNOWN);
+            if(hue>=0&&hue<360&&sat>=500&&sat<=1000){int[] c=Wiz.rgb(hue);s.r=c[0];s.g=c[1];s.b=c[2];}
             return s;
         }catch(JSONException e){return null;}
     }
