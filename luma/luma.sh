@@ -1,6 +1,6 @@
 #!/bin/bash
 # Luma on your TV, from this computer: build, install, make it the home screen, and undo that.
-#   ./luma.sh [-s DEVICE] build | install | home | widgets | restore | status
+#   ./luma.sh [-s DEVICE] build | install | home | widgets | keys | restore | status
 # DEVICE is the TV's adb address (192.168.1.50:5555) or serial. Default: $LUMA_DEVICE, else the only device adb sees.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -67,6 +67,17 @@ widgets)
     tv cmd notification allow_listener dev.luma.tv/dev.luma.tv.MediaListener && echo "Reproduciendo: la música que suena en la TV."
     tv appops set dev.luma.tv GET_USAGE_STATS allow && echo "A continuación: apps usadas recientemente."
     echo "Puedes deshacer cualquiera en la TV: Ajustes → Apps → Acceso especial de apps, o Ajustes → Apps → Luma TV → Permisos." ;;
+keys)
+    # The remote's app buttons (KeyService). Keeps any other accessibility service already enabled.
+    pick_device
+    installed dev.luma.tv || die "Luma aún no está instalada: ./luma.sh install"
+    tv appops set dev.luma.tv APP_AUTO_START allow 2>/dev/null || true # TCL's boot manager otherwise forbids binding the service
+    service="dev.luma.tv/dev.luma.tv.KeyService"
+    current="$(tv settings get secure enabled_accessibility_services)"
+    case "$current" in null|"") current="" ;; esac
+    case ":$current:" in *":$service:"*) ;; *) tv settings put secure enabled_accessibility_services "${current:+$current:}$service" ;; esac
+    tv settings put secure accessibility_enabled 1
+    echo "Botones del control: YouTube, Prime Video, Netflix, ViX y Apple TV abren su app." ;;
 restore)
     pick_device
     state="$(state_file)"
@@ -89,5 +100,5 @@ status)
     echo "Luma:   $(tv dumpsys package dev.luma.tv | sed -n 's/^ *versionName=//p' | head -n 1 | grep . || echo 'no instalada')"
     echo "Inicio: $(home_now)" ;;
 *)
-    die "comando desconocido '$ACTION'. Usa build, install, home, widgets, restore o status." ;;
+    die "comando desconocido '$ACTION'. Usa build, install, home, widgets, keys, restore o status." ;;
 esac
