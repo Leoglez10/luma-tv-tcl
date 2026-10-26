@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- KeyService only filters the remote's app buttons; it asks for no window content and no events. -->
+<!-- KeyService only filters the remote's app buttons: no window content, and only announcements, which it ignores (a service must name one event type). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/key_service_description"
     android:accessibilityEventTypes="typeAnnouncement"

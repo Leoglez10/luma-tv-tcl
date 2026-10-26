@@ -71,7 +71,8 @@ keys)
     # The remote's app buttons (KeyService). Keeps any other accessibility service already enabled.
     pick_device
     installed dev.luma.tv || die "Luma aún no está instalada: ./luma.sh install"
-    tv appops set dev.luma.tv APP_AUTO_START allow 2>/dev/null || true # TCL's boot manager otherwise forbids binding the service
+    # TCL's boot manager otherwise forbids binding the service; other TVs have no such op.
+    tv appops set dev.luma.tv APP_AUTO_START allow 2>/dev/null || echo "Aviso: no se pudo permitir el arranque automático; en TVs TCL los botones pueden no responder."
     service="dev.luma.tv/dev.luma.tv.KeyService"
     current="$(tv settings get secure enabled_accessibility_services)"
     case "$current" in null|"") current="" ;; esac
@@ -87,6 +88,10 @@ restore)
         disabled=""; original=""
         for pkg in $KNOWN; do installed "$pkg" && tv pm list packages -d "$pkg" | grep -qx "package:$pkg" && disabled="$disabled $pkg"; done
     fi
+    service="dev.luma.tv/dev.luma.tv.KeyService";current="$(tv settings get secure enabled_accessibility_services)"
+    case ":$current:" in *":$service:"*) rest="$(echo ":$current:" | sed "s#:$service:#:#; s#^:##; s#:\$##")"
+        if [ -n "$rest" ]; then tv settings put secure enabled_accessibility_services "$rest"; else tv settings delete secure enabled_accessibility_services >/dev/null; fi
+        echo "Botones del control: servicio de Luma desactivado." ;; esac
     for pkg in $disabled; do echo "Reactivando $pkg."; tv pm enable --user 0 "$pkg" >/dev/null || true; done
     if [ -n "$original" ] && [ "$original" != "$LUMA" ] && [[ "$original" =~ ^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$ ]]; then
         tv cmd package set-home-activity --user 0 "$original" >/dev/null || true

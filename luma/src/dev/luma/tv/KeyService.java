@@ -19,11 +19,11 @@ public final class KeyService extends AccessibilityService {
 
     @Override protected boolean onKeyEvent(KeyEvent event){
         String pkg=app(event.getScanCode());if(pkg==null)return false;
-        if(event.getAction()==KeyEvent.ACTION_DOWN&&event.getRepeatCount()==0){
-            Intent launch=getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
-            if(launch==null)launch=getPackageManager().getLaunchIntentForPackage(pkg);
-            if(launch!=null)try{startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));}catch(RuntimeException ignored){}
-        }
+        Intent launch=getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+        if(launch==null)launch=getPackageManager().getLaunchIntentForPackage(pkg);
+        if(launch==null)return false; // app not installed: the TV keeps the button
+        if(event.getAction()==KeyEvent.ACTION_DOWN&&event.getRepeatCount()==0)
+            try{startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));}catch(RuntimeException ignored){}
         return true; // the button is ours, down and up
     }
     @Override public void onAccessibilityEvent(AccessibilityEvent event){}
