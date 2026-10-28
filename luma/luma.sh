@@ -78,7 +78,7 @@ keys)
     case "$current" in null|"") current="" ;; esac
     case ":$current:" in *":$service:"*) ;; *) tv settings put secure enabled_accessibility_services "${current:+$current:}$service" ;; esac
     tv settings put secure accessibility_enabled 1
-    echo "Botones del control: YouTube, Prime Video, Netflix y ViX abren su app; el de Apple TV abre Spotify." ;;
+    echo "Botones del control: YouTube abre SmartTube; Prime Video, Netflix y ViX abren su app; el de Apple TV abre Spotify." ;;
 restore)
     pick_device
     state="$(state_file)"

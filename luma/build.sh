@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 SDK="${ANDROID_SDK_ROOT:-/opt/homebrew/share/android-commandlinetools}"
 JDK="${LUMA_JDK:-/opt/homebrew/opt/openjdk@17}"
 BT="$SDK/build-tools/36.0.0"
-ANDROID_JAR="$SDK/platforms/android-34/android.jar"
+ANDROID_JAR="${ANDROID_JAR:-$SDK/platforms/android-34/android.jar}"
 export JAVA_HOME="$JDK"
 export PATH="$JDK/bin:$PATH"
 mkdir -p build/classes build/dex dist
