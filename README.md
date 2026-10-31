@@ -1,5 +1,7 @@
 # Luma TV — edición TCL
 
+> 🇬🇧 **In English:** An ad-free, Spanish-language home screen for Android TV and Google TV, based on Luma, with local smart-light control, TCL remote shortcuts and now-playing info.
+
 Una pantalla de inicio tranquila y sin anuncios para Android TV y Google TV, en español, basada en
 [Luma](https://github.com/0xProbabillity/luma-tv). Controla los focos de tu casa, abre apps con los botones del control
 TCL y muestra lo que estabas viendo y escuchando, sin filas patrocinadas ni rastreo.
